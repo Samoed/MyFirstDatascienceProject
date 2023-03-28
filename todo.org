@@ -14,3 +14,5 @@
 - https://paperswithcode.com/paper/hagrid-hand-gesture-recognition-image-dataset
 - https://github.com/hukenovs/hagrid
 -
+* QT
+- https://doc.qt.io/qtforpython/examples/example_external__opencv.html

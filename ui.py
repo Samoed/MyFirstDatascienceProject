@@ -107,7 +107,7 @@ class Ui_MainWindow(object):
 
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Closed\u270a", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"Open\u270b", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"OK \ud83d\udc4c", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", u"OK", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Pointer\u261d\ufe0f", None))
         self.ok_combobox.setItemText(0, QCoreApplication.translate("MainWindow", u"Move mouse", None))
         self.ok_combobox.setItemText(1, QCoreApplication.translate("MainWindow", u"\u041b\u041a\u041c", None))
