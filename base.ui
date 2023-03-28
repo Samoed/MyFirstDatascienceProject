@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>70</x>
-      <y>52</y>
+      <y>122</y>
       <width>171</width>
       <height>32</height>
      </rect>
@@ -53,8 +53,8 @@
    <widget class="QComboBox" name="open_combobox">
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>14</y>
+      <x>71</x>
+      <y>80</y>
       <width>171</width>
       <height>32</height>
      </rect>
@@ -90,7 +90,7 @@
     <property name="geometry">
      <rect>
       <x>15</x>
-      <y>52</y>
+      <y>122</y>
       <width>49</width>
       <height>31</height>
      </rect>
@@ -102,8 +102,8 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>19</x>
-      <y>14</y>
+      <x>20</x>
+      <y>80</y>
       <width>45</width>
       <height>32</height>
      </rect>
@@ -116,20 +116,20 @@
     <property name="geometry">
      <rect>
       <x>29</x>
-      <y>128</y>
+      <y>198</y>
       <width>35</width>
       <height>32</height>
      </rect>
     </property>
     <property name="text">
-     <string>OK 👌</string>
+     <string>OK</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
       <x>11</x>
-      <y>90</y>
+      <y>160</y>
       <width>53</width>
       <height>31</height>
      </rect>
@@ -142,7 +142,7 @@
     <property name="geometry">
      <rect>
       <x>70</x>
-      <y>128</y>
+      <y>198</y>
       <width>171</width>
       <height>32</height>
      </rect>
@@ -178,7 +178,7 @@
     <property name="geometry">
      <rect>
       <x>70</x>
-      <y>90</y>
+      <y>160</y>
       <width>171</width>
       <height>32</height>
      </rect>
@@ -223,14 +223,14 @@
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string/>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>230</y>
+      <y>260</y>
       <width>211</width>
       <height>41</height>
      </rect>
@@ -243,13 +243,42 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>280</y>
+      <y>310</y>
       <width>211</width>
       <height>41</height>
      </rect>
     </property>
     <property name="text">
      <string>Stop</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="open_combobox_2">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>0</y>
+      <width>171</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="acceptDrops">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>0</y>
+      <width>61</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Профиль</string>
     </property>
    </widget>
   </widget>
