@@ -1,0 +1,16 @@
+#+title: Todo
+
+* Repos
+- https://github.com/ahmetgunduz/Real-time-GesRec
+- https://github.com/fabiopk/RT_GestureRecognition
+- https://github.com/Djang0-Z/gesture_recognition_pytorch
+- https://github.com/jesus-333/Hand-Tracking-Pytorch
+- https://github.com/nicknochnack/Body-Language-Decoder https://www.youtube.com/watch?v=We1uB79Ci-w
+- https://github.com/kinivi/hand-gesture-recognition-mediapipe https://www.youtube.com/watch?v=a99p_fAr6e4
+* Datasets
+- https://paperswithcode.com/dataset/egogesture
+- https://paperswithcode.com/dataset/jester-gesture-recognition
+- https://paperswithcode.com/dataset/camgesdata
+- https://paperswithcode.com/paper/hagrid-hand-gesture-recognition-image-dataset
+- https://github.com/hukenovs/hagrid
+-
