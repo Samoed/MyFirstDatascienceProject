@@ -1,8 +1,7 @@
+import mlflow
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV, KFold
-
-import mlflow
 
 
 def main():
@@ -17,14 +16,13 @@ def main():
     parameters = {
         "n_estimators": [10, 100, 1000],
         "max_depth": [2, 4, 5, 6, 7, 8, None],
-        "min_samples_split": [2, 5, 10],
-        "min_samples_leaf": [1, 2, 4],
+        # "min_samples_split": [2, 5, 10],
+        # "min_samples_leaf": [1, 2, 4],
         "bootstrap": [True, False],
         "criterion": ["gini", "entropy"],
-
     }
     forest = RandomForestClassifier()
-    clf = GridSearchCV(forest, parameters, cv=cv, n_jobs=-1, scoring=scoring, verbose=1, refit='f1')
+    clf = GridSearchCV(forest, parameters, cv=cv, n_jobs=-1, scoring=scoring, verbose=1, refit="f1")
 
     clf.fit(X, y)
     run_id = mlflow.last_active_run().info.run_id

@@ -1,5 +1,6 @@
 import argparse
 
+import mlflow.pytorch
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -8,7 +9,6 @@ from sklearn.model_selection import train_test_split
 from torch import nn, optim
 from torch.utils.data import DataLoader, Dataset
 from tqdm.auto import tqdm
-import mlflow.pytorch
 
 BATCH_SIZE = 8
 
@@ -43,7 +43,7 @@ class GestureClassifier(nn.Module):
 
 
 def train(
-        model, train_loader, test_loader, criterion, optimizer, num_epochs=10, batch_size=32, device=torch.device("cpu")
+    model, train_loader, test_loader, criterion, optimizer, num_epochs=10, batch_size=32, device=torch.device("cpu")
 ):
     # Train the model
     train_predicted = []

@@ -1,8 +1,7 @@
-import numpy as np
-from xgboost import XGBClassifier
-from sklearn.model_selection import GridSearchCV, KFold
-
 import mlflow
+import numpy as np
+from sklearn.model_selection import GridSearchCV, KFold
+from xgboost import XGBClassifier
 
 
 def main():
@@ -14,18 +13,20 @@ def main():
     cv = KFold(n_splits=3, random_state=42, shuffle=True)
     scoring = {"acc": "accuracy", "f1": "f1_macro"}  # roc_auc_ovr
 
-    parameters = {'max_depth': [4, 5, 6],
-                       'learning_rate': [0.1, 0.2, 0.3],
-                       'n_estimators': [50, 100, 150],
-                       'gamma': [0, 20],
-                       'subsample': [0.8, 1],
-                       'colsample_bytree': [0.8, 1],
-                       'lambda': [0, 0.1, 1],
-                       'tree_method': ["hist"],
-                       'eval_metric': ["mae"]}
+    parameters = {
+        "max_depth": [4, 5, 6],
+        "learning_rate": [0.1, 0.2, 0.3],
+        "n_estimators": [50, 100, 150],
+        "gamma": [0, 20],
+        "subsample": [0.8, 1],
+        "colsample_bytree": [0.8, 1],
+        "lambda": [0, 0.1, 1],
+        "tree_method": ["hist"],
+        "eval_metric": ["mae"],
+    }
 
     xgb = XGBClassifier()
-    clf = GridSearchCV(xgb, parameters, cv=cv, n_jobs=-1, scoring=scoring, verbose=1, refit='f1')
+    clf = GridSearchCV(xgb, parameters, cv=cv, n_jobs=-1, scoring=scoring, verbose=1, refit="f1")
 
     clf.fit(X, y)
     run_id = mlflow.last_active_run().info.run_id

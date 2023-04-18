@@ -1,8 +1,7 @@
+import mlflow
 import numpy as np
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.model_selection import GridSearchCV, KFold
-
-import mlflow
 
 
 def main():
@@ -18,14 +17,14 @@ def main():
         # "loss": ["log_loss", "exponential"],
         "learning_rate": [0.001, 0.01, 0.1, 1, 10, 100, 1000],
         "n_estimators": [100, 1000, 2500, 5000],
-        "max_depth": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        "max_depth": [1, 2, 3, 4, 5, 6, 7, 8, 9, None],
         # "min_samples_split": [2, 5, 10],
         # "min_samples_leaf": [1, 2, 4],
         # "max_features": [None, "sqrt", "log2"],
         # "criterion": ["friedman_mse", "mse", "mae"],
     }
     forest = GradientBoostingClassifier()
-    clf = GridSearchCV(forest, parameters, cv=cv, n_jobs=-1, scoring=scoring, verbose=1, refit='f1')
+    clf = GridSearchCV(forest, parameters, cv=cv, n_jobs=-1, scoring=scoring, verbose=1, refit="f1")
 
     clf.fit(X, y)
     run_id = mlflow.last_active_run().info.run_id

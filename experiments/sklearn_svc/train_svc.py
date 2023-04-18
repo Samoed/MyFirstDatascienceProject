@@ -1,8 +1,7 @@
-import numpy as np
-from sklearn.svm import SVC
-from sklearn.model_selection import GridSearchCV, KFold
-
 import mlflow
+import numpy as np
+from sklearn.model_selection import GridSearchCV, KFold
+from sklearn.svm import SVC
 
 
 def main():
@@ -14,12 +13,13 @@ def main():
     cv = KFold(n_splits=3, random_state=42, shuffle=True)
     scoring = {"acc": "accuracy", "f1": "f1_macro"}  # roc_auc_ovr
 
-    parameters = {'C': [0.1, 1, 10, 100, 200, 500, 1000],
-                  'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
-                  'gamma': ['scale', 'auto', 1, 0.1, 0.001, 0.0001]
-                  }
+    parameters = {
+        "C": [0.1, 1, 10, 100, 200, 500, 1000],
+        "kernel": ["linear", "poly", "rbf", "sigmoid"],
+        "gamma": ["scale", "auto", 1, 0.1, 0.001, 0.0001],
+    }
     svc = SVC()
-    clf = GridSearchCV(svc, parameters, cv=cv, n_jobs=-1, scoring=scoring, verbose=1, refit='f1')
+    clf = GridSearchCV(svc, parameters, cv=cv, n_jobs=-1, scoring=scoring, verbose=1, refit="f1")
 
     clf.fit(X, y)
     run_id = mlflow.last_active_run().info.run_id
