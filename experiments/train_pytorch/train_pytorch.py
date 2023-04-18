@@ -153,7 +153,7 @@ def main():
     )
     args = parser.parse_args()
 
-    data = np.load("../notebooks/processed.npy")
+    data = np.load("../../data/processed.npy")
 
     train_data, test_data = train_test_split(data, test_size=0.1)
     train_dataset = HandLandmarksDataset(train_data)
