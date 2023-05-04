@@ -3,9 +3,18 @@ from pynput import keyboard
 
 class ReadKeyboard:
     pressed_key: list[keyboard.Key | keyboard.KeyCode] = []
-    modifier_key: list[keyboard.Key] = [keyboard.Key.alt, keyboard.Key.alt_l, keyboard.Key.alt_r, keyboard.Key.alt_gr,
-                                        keyboard.Key.ctrl, keyboard.Key.ctrl_l, keyboard.Key.ctrl_r, keyboard.Key.cmd,
-                                        keyboard.Key.cmd_l, keyboard.Key.cmd_r]
+    modifier_key: list[keyboard.Key] = [
+        keyboard.Key.alt,
+        keyboard.Key.alt_l,
+        keyboard.Key.alt_r,
+        keyboard.Key.alt_gr,
+        keyboard.Key.ctrl,
+        keyboard.Key.ctrl_l,
+        keyboard.Key.ctrl_r,
+        keyboard.Key.cmd,
+        keyboard.Key.cmd_l,
+        keyboard.Key.cmd_r,
+    ]
 
     def on_press(self, key: keyboard.Key) -> None:
         self.pressed_key.append(key)
@@ -14,7 +23,7 @@ class ReadKeyboard:
         return False
         # return key in self.modifier_key:
 
-    def read(self) -> list[keyboard.Key]:
+    def read(self) -> list[keyboard.Key | keyboard.KeyCode]:
         return self.pressed_key
 
     def __init__(self) -> None:

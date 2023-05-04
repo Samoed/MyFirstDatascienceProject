@@ -1,15 +1,13 @@
-import csv
-import copy
 import argparse
+import copy
+import csv
 import itertools
-from collections import Counter
-from collections import deque
+import pickle
+from collections import Counter, deque
 
 import cv2
-import numpy as np
 import mediapipe as mp
-
-import pickle
+import numpy as np
 from pynput.mouse import Button, Controller
 
 mouse = Controller()
@@ -72,7 +70,22 @@ def main():
     mp_drawing = mp.solutions.drawing_utils
 
     # Read labels ###########################################################
-    labels = ['two_fingers_near', 'one', 'two', 'three', 'four', 'five', 'ok', 'c', 'heavy', 'hang', 'palm', 'l', 'like', 'dislike']
+    labels = [
+        "two_fingers_near",
+        "one",
+        "two",
+        "three",
+        "four",
+        "five",
+        "ok",
+        "c",
+        "heavy",
+        "hang",
+        "palm",
+        "l",
+        "like",
+        "dislike",
+    ]
     with open("model.pkl", "rb") as f:
         model = pickle.load(f)
 
@@ -134,11 +147,7 @@ def main():
 
             # Drawing part
             # debug_image = draw_bounding_rect(use_brect, debug_image, brect)
-            mp_drawing.draw_landmarks(
-                debug_image,
-                results.multi_hand_landmarks[0],
-                mp_hands.HAND_CONNECTIONS
-            )
+            mp_drawing.draw_landmarks(debug_image, results.multi_hand_landmarks[0], mp_hands.HAND_CONNECTIONS)
             debug_image = draw_info_text(
                 debug_image,
                 brect,
@@ -187,8 +196,7 @@ def calc_landmark_list(image, landmarks):
 
     # Normalize the landmarks relative to the wrist position
     normalized_landmarks = [
-        (landmark.x - wrist_position_x, landmark.y - wrist_position_y)  # landmark.z
-        for landmark in landmarks
+        (landmark.x - wrist_position_x, landmark.y - wrist_position_y) for landmark in landmarks  # landmark.z
     ]
     normalized_landmarks = np.array(normalized_landmarks).flatten()
     normalized_landmarks /= max(abs(normalized_landmarks))

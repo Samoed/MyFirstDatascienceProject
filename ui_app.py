@@ -1,19 +1,28 @@
 import copy
+import json
+import os
 import pickle
 import sys
 import time
-from collections import deque
+from collections import defaultdict, deque
 
 import cv2
 import mediapipe as mp
-from PySide6.QtCore import Qt, QThread, Signal, Slot
-from PySide6.QtGui import QImage, QPixmap
-from PySide6.QtWidgets import (QApplication, QMainWindow, QPushButton)
 from pynput import keyboard
 from pynput.mouse import Controller
+from PySide6 import QtGui
+from PySide6.QtCore import Qt, QThread, Signal, Slot
+from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton
 
 import read_keyboard as app_setup
-from app import (calc_bounding_rect, calc_landmark_list, draw_info_text, draw_point_history, )
+from app import (
+    calc_bounding_rect,
+    calc_landmark_list,
+    draw_info_text,
+    draw_point_history,
+)
+from ru_eng_keycodes import ru_eng_keycodes
 from ui import Ui_MainWindow
 
 mouse = Controller()
@@ -42,9 +51,22 @@ class Thread(QThread):
 
         # Finger gesture history ################################################
         self.finger_gesture_history = deque(maxlen=self.history_length)
-        self.labels = ['two_fingers_near', 'one', 'two', 'three', 'four', 'five', 'ok', 'c', 'heavy', 'hang', 'palm',
-                       'l',
-                       'like', 'dislike']
+        self.labels = [
+            "two_fingers_near",
+            "one",
+            "two",
+            "three",
+            "four",
+            "five",
+            "ok",
+            "c",
+            "heavy",
+            "hang",
+            "palm",
+            "l",
+            "like",
+            "dislike",
+        ]
         with open("model.pkl", "rb") as f:
             self.model = pickle.load(f)
 
@@ -54,7 +76,6 @@ class Thread(QThread):
         print(start_mouse_x, start_mouse_y)
 
         while self.status:
-
             # Camera capture #####################################################
             ret, image = self.cap.read()
             if not ret:
@@ -92,9 +113,7 @@ class Thread(QThread):
                 # Drawing part
                 # debug_image = draw_bounding_rect(use_brect, debug_image, brect)
                 self.mp_drawings.draw_landmarks(
-                    debug_image,
-                    results.multi_hand_landmarks[0],
-                    self.mp_hands.HAND_CONNECTIONS
+                    debug_image, results.multi_hand_landmarks[0], self.mp_hands.HAND_CONNECTIONS
                 )
                 debug_image = draw_info_text(
                     debug_image,
@@ -120,6 +139,8 @@ class Thread(QThread):
 
 
 class MainWindow(QMainWindow):
+    file_name = "keymap.json"
+
     def __init__(self):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
@@ -127,13 +148,13 @@ class MainWindow(QMainWindow):
 
         self.th = Thread(self)
         self.th.finished.connect(self.close)
-        self.th.updateFrame.connect(self.setImage)
+        self.th.updateFrame.connect(self.set_image)
 
         self.ui.start_button.clicked.connect(self.start)
         self.ui.stop_button.clicked.connect(self.kill_thread)
         self.ui.stop_button.setEnabled(False)
 
-        self.key_values: dict[str, list[keyboard.Key | keyboard.KeyCode]] = {}
+        self.key_values: dict[str, list[keyboard.Key | keyboard.KeyCode]] = defaultdict(list)
         self.mouse_combo = [
             self.ui.two_fingers_combobox,
             self.ui.one_combobox,
@@ -150,9 +171,10 @@ class MainWindow(QMainWindow):
             self.ui.hang_button,
             self.ui.palm_button,
             self.ui.like_button,
-            self.ui.dislike_button
+            self.ui.dislike_button,
         ]
         self.process_buttons()
+        self.read_config()
 
     @Slot()
     def kill_thread(self):
@@ -164,7 +186,7 @@ class MainWindow(QMainWindow):
         self.status = False
         self.th.terminate()
         # Give time for the thread to finish
-        time.sleep(1)
+        time.sleep(0.5)
 
     @Slot()
     def start(self):
@@ -172,7 +194,6 @@ class MainWindow(QMainWindow):
         self.ui.start_button.setEnabled(True)
         self.ui.stop_button.setEnabled(False)
 
-        # self.th.set_file(self.combobox.currentText())
         self.th.start()
 
     def process_buttons(self) -> None:
@@ -180,18 +201,66 @@ class MainWindow(QMainWindow):
             button.pressed.connect(lambda b=button: button_hook(b, self))
 
     @Slot(QImage)
-    def setImage(self, image):
+    def set_image(self, image):
         self.ui.label_5.setPixmap(QPixmap.fromImage(image))
+
+    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        result_dict = {}
+        for gesture, keys in self.key_values.items():
+            keys_str = []
+            # keys_vk = []
+            for key in keys:
+                match type(key):
+                    case keyboard.Key:
+                        keys_str.append(key.name)
+                    case keyboard.KeyCode:
+                        keys_str.append(key.char)
+                        # keys_vk.append(key.vk)  # TODO test vk?
+            result_dict[gesture] = "+".join(keys_str)
+        # TODO dump all keymap
+        json_string = json.dumps(result_dict)
+        with open(self.file_name, "w", encoding="utf-8") as f:
+            f.write(json_string)
+
+    def read_config(self):
+        if not os.path.exists(self.file_name):
+            return
+        with open(self.file_name, "r", encoding="utf-8") as f:
+            keymap = json.loads(f.read())
+        keymap_str = {}
+        keys = keyboard.Key.__members__.keys()
+        for gesture, keymap_val in keymap.items():
+            # TODO check if gesture is valid
+            for key in keymap_val.split("+"):
+                if key in keys:
+                    self.key_values[gesture].append(keyboard.Key[key])  # Key
+                else:
+                    self.key_values[gesture].append(keyboard.KeyCode.from_char(key))
+        for button in self.gesture_buttons:
+            if button.objectName() in keymap:
+                button.setText(keymap[button.objectName()])
+        # for combo in self.mouse_combo:
+        #     combo.setText(keymap.get(combo.objectName(), "Press button, then key"))
+        print(self.key_values)
 
 
 def button_hook(button: QPushButton, app: MainWindow) -> None:
     # print(button.objectName())
     new_key_combo = app_setup.ReadKeyboard().pressed_key
-    new_text = ""
-    for key in new_key_combo[:-1]:
-        new_text += key.name + "+"
-    button.setText(new_text + new_key_combo[-1].char)
+    new_text = keys_to_str(new_key_combo)
+    button.setText(new_text)
     app.key_values[button.objectName()] = new_key_combo
+
+
+def keys_to_str(keycodes: list[keyboard.Key | keyboard.KeyCode]) -> str:
+    result = ""
+    for key in keycodes:
+        match type(key):
+            case keyboard.Key:
+                result += key.name
+            case keyboard.KeyCode:
+                result += key.char
+    return "+".join(result)
 
 
 if __name__ == "__main__":
