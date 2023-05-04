@@ -1,5 +1,6 @@
 from pynput import keyboard
-from ru_eng_keycodes import ru_eng_keycodes
+from process_keyboard.ru_eng_keycodes import ru_eng_keycodes
+
 
 class ReadKeyboard:
     pressed_key: list[keyboard.Key | keyboard.KeyCode] = []

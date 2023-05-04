@@ -15,7 +15,10 @@ from PySide6.QtCore import Qt, QThread, Signal, Slot
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton
 
-import read_keyboard as app_setup
+from process_keyboard.keyboard_press import press_keyboard
+from process_keyboard.read_keyboard import ReadKeyboard
+
+import process_keyboard.keyboard_press
 from app import (
     calc_bounding_rect,
     calc_landmark_list,
@@ -30,6 +33,8 @@ mouse = Controller()
 
 class Thread(QThread):
     updateFrame = Signal(QImage)
+    new_key = Signal(str)
+    mouse_move = Signal(str, QPointList)
 
     def __init__(self, parent=None):
         QThread.__init__(self, parent)
@@ -67,6 +72,7 @@ class Thread(QThread):
             "like",
             "dislike",
         ]
+        self.mouse_ids = [0, 1, 11]
         with open("model.pkl", "rb") as f:
             self.model = pickle.load(f)
 
@@ -127,6 +133,18 @@ class Thread(QThread):
                     self.labels[hand_sign_id],
                     "",
                 )
+                print(max_score, hand_sign_id)
+                if max_score < 0.6:
+                    debug_image = draw_point_history(debug_image, self.point_history)
+                    self.draw_image(debug_image)
+                    continue
+
+                if hand_sign_id in self.mouse_ids:
+                    self.point_history.append(QPoint(hand_landmarks.landmark[8].x, hand_landmarks.landmark[8].y))
+                    self.mouse_move.emit(self.labels[hand_sign_id], self.point_history)
+                else:
+                    self.point_history.append(QPoint(0, 0))
+                    self.new_key.emit(self.labels[hand_sign_id])
 
             debug_image = draw_point_history(debug_image, self.point_history)
             self.draw_image(debug_image)
@@ -137,6 +155,8 @@ class Thread(QThread):
 
 class MainWindow(QMainWindow):
     file_name = "keymap.json"
+    prev_label = None
+    mouse_move = False
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -146,6 +166,8 @@ class MainWindow(QMainWindow):
         self.th = Thread(self)
         self.th.finished.connect(self.close)
         self.th.updateFrame.connect(self.set_image)
+        self.th.new_key.connect(self.process_key)
+        self.th.mouse_move.connect(self.process_mouse)
 
         self.ui.start_button.clicked.connect(self.start)
         self.ui.stop_button.clicked.connect(self.kill_thread)
@@ -197,6 +219,30 @@ class MainWindow(QMainWindow):
     def set_image(self, image):
         self.ui.label_5.setPixmap(QPixmap.fromImage(image))
 
+    @Slot(str)
+    def process_key(self, label: str):
+        label += "_button"
+        print(label)
+        print(self.key_values[label])
+        self.mouse_move = False
+
+        if self.key_values[label] == [''] or self.prev_label == label or len(self.key_values[label]) == 0:
+            self.prev_label = label
+            return
+        self.prev_label = label
+        process_keyboard.keyboard_press.press_keyboard(self.key_values[label])
+
+
+    @Slot(str, QPointList)
+    def process_mouse(self, label: str, point_history: QPointList):
+        label += "_combobox"
+        print(label)
+        # print(self.mouse_values[label])
+        # if self.mouse_values[label] == [''] or self.prev_label == label:
+        #     return
+        # process_keyboard.keyboard_press.press_mouse(self.key_values[label])
+        self.prev_label = label
+
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         result_dict = {}
         for gesture, keys in self.key_values.items():
@@ -219,8 +265,12 @@ class MainWindow(QMainWindow):
     def read_config(self):
         if not os.path.exists(self.file_name):
             return
-        with open(self.file_name, "r", encoding="utf-8") as f:
-            keymap = json.loads(f.read())
+        try:
+            with open(self.file_name, "r", encoding="utf-8") as f:
+                keymap = json.loads(f.read())
+        except json.decoder.JSONDecodeError:
+            print("Error reading config")
+            return
         keys = keyboard.Key.__members__.keys()
         for gesture, keymap_val in keymap.items():
             # TODO check if gesture is valid
@@ -239,7 +289,7 @@ class MainWindow(QMainWindow):
 
 def button_hook(button: QPushButton, app_window: MainWindow) -> None:
     # print(button.objectName())
-    new_key_combo = app_setup.ReadKeyboard().read()
+    new_key_combo = ReadKeyboard().read()
     new_text = keys_to_str(new_key_combo)
     button.setText(new_text)
     app_window.key_values[button.objectName()] = new_key_combo
