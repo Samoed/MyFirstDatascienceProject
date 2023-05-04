@@ -20,7 +20,52 @@ torch = "^2.0.0"
 mlflow = "^2.3.1"
 tensorflow = "^2.11.0"
 
+
+[tool.poetry.group.lint.dependencies]
+flake8 = "^6.0.0"
+black = "^23.3.0"
+isort = "^5.12.0"
+mypy = "^1.2.0"
+pyupgrade = "^3.3.2"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+
+[tool.isort]
+profile = "black"
+
+# https://github.com/tiangolo/sqlmodel/blob/main/pyproject.toml
+[tool.mypy]
+python_version = "3.10"
+# --strict
+disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+strict_equality = true
+ignore_missing_imports = false
+# --strict end
+exclude = [
+    "tests/"
+]
+
+[tool.black]
+line-length = 120
+target-version = ['py310']
+preview = true
+exclude = '''
+/(
+    .git
+  | .venv
+  | notebooks
+)/
+'''
