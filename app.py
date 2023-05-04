@@ -8,6 +8,7 @@ from collections import Counter, deque
 import cv2
 import mediapipe as mp
 import numpy as np
+from PySide6.QtCore import QPointList, QPointFList
 from pynput.mouse import Button, Controller
 
 mouse = Controller()
@@ -251,11 +252,10 @@ def draw_info_text(image, brect, handedness, hand_sign_text, finger_gesture_text
     return image
 
 
-def draw_point_history(image, point_history):
-    for index, point in enumerate(point_history):
-        if point[0] != 0 and point[1] != 0:
-            cv2.circle(image, (point[0], point[1]), 1 + int(index / 2), (152, 251, 152), 2)
-
+def draw_point_history(image: np.ndarray, point_history: QPointList) -> np.ndarray:
+    # for index, point in enumerate(point_history):
+    #     if point.x() != 0 and point.y() != 0:
+    #         cv2.circle(image, (point.x(), point.y()), 1 + int(index / 2), (152, 251, 152), 2)
     return image
 
 

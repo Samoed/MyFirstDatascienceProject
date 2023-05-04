@@ -3,7 +3,6 @@ import json
 import os
 import pickle
 import sys
-import time
 from collections import defaultdict, deque
 
 import cv2
@@ -11,8 +10,8 @@ import mediapipe as mp
 from pynput import keyboard
 from pynput.mouse import Controller
 from PySide6 import QtGui
-from PySide6.QtCore import Qt, QThread, Signal, Slot
-from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtCore import Qt, QThread, Signal, Slot, QPointList, QPoint
+from PySide6.QtGui import QImage, QPixmap, QDesktopServices
 from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton
 
 from process_keyboard.keyboard_press import press_keyboard
@@ -25,7 +24,6 @@ from app import (
     draw_info_text,
     draw_point_history,
 )
-from ru_eng_keycodes import ru_eng_keycodes
 from ui import Ui_MainWindow
 
 mouse = Controller()
@@ -52,7 +50,7 @@ class Thread(QThread):
 
         # Coordinate history #################################################################
         self.history_length = 16
-        self.point_history = deque(maxlen=self.history_length)
+        self.point_history = QPointList()
 
         # Finger gesture history ################################################
         self.finger_gesture_history = deque(maxlen=self.history_length)
@@ -86,6 +84,7 @@ class Thread(QThread):
         self.cap = cv2.VideoCapture(1)
         start_mouse_x, start_mouse_y = mouse.position
         print(start_mouse_x, start_mouse_y)
+        self.point_history.append(QPoint(0, 0))
 
         while self.status:
             ret, image = self.cap.read()
@@ -100,8 +99,8 @@ class Thread(QThread):
             image.flags.writeable = True
 
             if results.multi_hand_landmarks is None:
-                self.point_history.append([0, 0])
-                debug_image = draw_point_history(debug_image, self.point_history)
+                self.point_history.append(QPoint(0, 0))
+                # debug_image = draw_point_history(debug_image, self.point_history)
                 self.draw_image(debug_image)
                 continue
 
@@ -119,6 +118,7 @@ class Thread(QThread):
 
                 # Hand sign classification
                 hand_sign_id = int(self.model.predict(landmark_list)[0])
+                max_score = max(self.model.predict_proba(landmark_list)[0])
                 print(hand_sign_id)
 
                 # Drawing part
@@ -140,14 +140,21 @@ class Thread(QThread):
                     continue
 
                 if hand_sign_id in self.mouse_ids:
-                    self.point_history.append(QPoint(hand_landmarks.landmark[8].x, hand_landmarks.landmark[8].y))
+                    image_width, image_height = image.shape[1], image.shape[0]
+
+                    landmark_x = min(int(hand_landmarks.landmark[8].x * image_width), image_width - 1)
+                    landmark_y = min(int(hand_landmarks.landmark[8].y * image_height), image_height - 1)
+                    self.point_history.append(QPoint(landmark_x, landmark_y))
                     self.mouse_move.emit(self.labels[hand_sign_id], self.point_history)
                 else:
                     self.point_history.append(QPoint(0, 0))
                     self.new_key.emit(self.labels[hand_sign_id])
 
-            debug_image = draw_point_history(debug_image, self.point_history)
-            self.draw_image(debug_image)
+                debug_image = draw_point_history(debug_image, self.point_history)
+                self.draw_image(debug_image)
+            if len(self.point_history) > self.history_length:
+                self.point_history.removeFirst(len(self.point_history) - self.history_length)
+
         self.cap.release()
         cv2.destroyAllWindows()
         sys.exit(-1)
@@ -174,6 +181,7 @@ class MainWindow(QMainWindow):
         self.ui.stop_button.setEnabled(False)
 
         self.key_values: dict[str, list[keyboard.Key | keyboard.KeyCode]] = defaultdict(list)
+        self.mouse_values: dict[str, str] = {}
         self.mouse_combo = [
             self.ui.two_fingers_combobox,
             self.ui.one_combobox,
@@ -226,17 +234,26 @@ class MainWindow(QMainWindow):
         print(self.key_values[label])
         self.mouse_move = False
 
-        if self.key_values[label] == [''] or self.prev_label == label or len(self.key_values[label]) == 0:
+        if self.prev_label == label or len(self.key_values[label]) == 0:
             self.prev_label = label
             return
         self.prev_label = label
         process_keyboard.keyboard_press.press_keyboard(self.key_values[label])
 
-
     @Slot(str, QPointList)
     def process_mouse(self, label: str, point_history: QPointList):
         label += "_combobox"
         print(label)
+        a = QtGui.QScreen.availableGeometry(self)
+        # QtGui.QGuiApplication.primaryScreen().size()
+        # QtGui.QGuiApplication.screens()[1].geometry()
+        # height
+        # width
+        if len(point_history) > 2 and (point_history[-1].x() + point_history[-1].y()) != 0 and (point_history[-2].x() + point_history[-2].y()) != 0:
+            diff_x = point_history[-1].x() - point_history[-2].x()
+            diff_y = point_history[-1].y() - point_history[-2].y()
+            print(diff_x, diff_y)
+            mouse.move(diff_x, diff_y)
         # print(self.mouse_values[label])
         # if self.mouse_values[label] == [''] or self.prev_label == label:
         #     return
