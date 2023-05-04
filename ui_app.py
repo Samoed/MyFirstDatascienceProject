@@ -13,7 +13,7 @@ from pynput import keyboard
 from pynput.mouse import Controller
 
 import read_keyboard as app_setup
-from app_test import (calc_bounding_rect, calc_landmark_list, draw_info_text, draw_point_history, )
+from app import (calc_bounding_rect, calc_landmark_list, draw_info_text, draw_point_history, )
 from ui import Ui_MainWindow
 
 mouse = Controller()
