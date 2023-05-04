@@ -183,9 +183,7 @@ def calc_bounding_rect(image, landmarks):
     return [x, y, x + w, y + h]
 
 
-def calc_landmark_list(image, landmarks):
-    image_width, image_height = image.shape[1], image.shape[0]
-
+def calc_landmark_list(landmarks):
     landmarks = landmarks.landmark
 
     # Get the position of the wrist landmark (Landmark.WRIST)

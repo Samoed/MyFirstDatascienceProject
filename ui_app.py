@@ -70,22 +70,25 @@ class Thread(QThread):
         with open("model.pkl", "rb") as f:
             self.model = pickle.load(f)
 
+    def draw_image(self, image):
+        h, w, ch = image.shape
+        img = QImage(image.data, w, h, ch * w, QImage.Format_RGB888)
+        scaled_img = img.scaled(640, 480, Qt.KeepAspectRatio)
+        self.updateFrame.emit(scaled_img)
+
     def run(self):
         self.cap = cv2.VideoCapture(1)
         start_mouse_x, start_mouse_y = mouse.position
         print(start_mouse_x, start_mouse_y)
 
         while self.status:
-            # Camera capture #####################################################
             ret, image = self.cap.read()
             if not ret:
                 break
-            image = cv2.flip(image, 1)  # Mirror display
-            debug_image = copy.deepcopy(image)
-
-            # Detection implementation #############################################################
+            image = cv2.flip(image, 1)
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
+            debug_image = copy.deepcopy(image)
             image.flags.writeable = False
             results = self.hands.process(image)
             image.flags.writeable = True
@@ -93,18 +96,20 @@ class Thread(QThread):
             if results.multi_hand_landmarks is None:
                 self.point_history.append([0, 0])
                 debug_image = draw_point_history(debug_image, self.point_history)
-                debug_image = cv2.cvtColor(debug_image, cv2.COLOR_RGB2BGR)
-                h, w, ch = debug_image.shape
-                img = QImage(debug_image.data, w, h, ch * w, QImage.Format_RGB888)
-                scaled_img = img.scaled(640, 480, Qt.KeepAspectRatio)
-                self.updateFrame.emit(scaled_img)
+                self.draw_image(debug_image)
                 continue
 
             for hand_landmarks, handedness in zip(results.multi_hand_landmarks, results.multi_handedness):
+                # if handedness.classification[0].label == "Right":
+                #     test_image = copy.deepcopy(image)
+                #     test_image = cv2.flip(test_image, 1)
+                #     mirrored_result = self.hands.process(test_image)
+                #     hand_landmarks = mirrored_result.multi_hand_landmarks[0]
+
                 # Bounding box calculation
                 brect = calc_bounding_rect(debug_image, hand_landmarks)
                 # Landmark calculation
-                landmark_list = calc_landmark_list(debug_image, hand_landmarks).reshape(1, -1)
+                landmark_list = calc_landmark_list(hand_landmarks).reshape(1, -1)
 
                 # Hand sign classification
                 hand_sign_id = int(self.model.predict(landmark_list)[0])
@@ -124,17 +129,9 @@ class Thread(QThread):
                 )
 
             debug_image = draw_point_history(debug_image, self.point_history)
-
-            # Screen reflection #############################################################
-            # cv2.imshow("Hand Gesture Recognition", debug_image)
-            # Creating and scaling QImage
-            h, w, ch = debug_image.shape
-            debug_image = cv2.cvtColor(debug_image, cv2.COLOR_RGB2BGR)
-            img = QImage(debug_image.data, w, h, ch * w, QImage.Format_RGB888)
-            scaled_img = img.scaled(640, 480, Qt.KeepAspectRatio)
-
-            # Emit signal
-            self.updateFrame.emit(scaled_img)
+            self.draw_image(debug_image)
+        self.cap.release()
+        cv2.destroyAllWindows()
         sys.exit(-1)
 
 
@@ -181,18 +178,14 @@ class MainWindow(QMainWindow):
         print("Finishing...")
         self.ui.stop_button.setEnabled(False)
         self.ui.start_button.setEnabled(True)
-        self.th.cap.release()
-        cv2.destroyAllWindows()
-        self.status = False
-        self.th.terminate()
-        # Give time for the thread to finish
-        time.sleep(0.5)
+        self.th.status = False
+        self.th.wait()  # Wait for the thread to finish
 
     @Slot()
     def start(self):
         print("Starting...")
-        self.ui.start_button.setEnabled(True)
-        self.ui.stop_button.setEnabled(False)
+        self.ui.start_button.setEnabled(False)
+        self.ui.stop_button.setEnabled(True)
 
         self.th.start()
 
@@ -221,13 +214,13 @@ class MainWindow(QMainWindow):
         json_string = json.dumps(result_dict)
         with open(self.file_name, "w", encoding="utf-8") as f:
             f.write(json_string)
+        self.kill_thread()
 
     def read_config(self):
         if not os.path.exists(self.file_name):
             return
         with open(self.file_name, "r", encoding="utf-8") as f:
             keymap = json.loads(f.read())
-        keymap_str = {}
         keys = keyboard.Key.__members__.keys()
         for gesture, keymap_val in keymap.items():
             # TODO check if gesture is valid
@@ -244,22 +237,22 @@ class MainWindow(QMainWindow):
         print(self.key_values)
 
 
-def button_hook(button: QPushButton, app: MainWindow) -> None:
+def button_hook(button: QPushButton, app_window: MainWindow) -> None:
     # print(button.objectName())
-    new_key_combo = app_setup.ReadKeyboard().pressed_key
+    new_key_combo = app_setup.ReadKeyboard().read()
     new_text = keys_to_str(new_key_combo)
     button.setText(new_text)
-    app.key_values[button.objectName()] = new_key_combo
+    app_window.key_values[button.objectName()] = new_key_combo
 
 
 def keys_to_str(keycodes: list[keyboard.Key | keyboard.KeyCode]) -> str:
-    result = ""
+    result = []
     for key in keycodes:
         match type(key):
             case keyboard.Key:
-                result += key.name
+                result.append(key.name)
             case keyboard.KeyCode:
-                result += key.char
+                result.append(key.char)
     return "+".join(result)
 
 
