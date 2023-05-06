@@ -7,15 +7,13 @@ from collections import defaultdict, deque
 
 import cv2
 import mediapipe as mp
+import numpy as np
 from pynput import keyboard
-from pynput.mouse import Controller, Button
+from pynput.mouse import Button, Controller
 from PySide6 import QtGui
-from PySide6.QtCore import Qt, QThread, Signal, Slot, QPointList, QPoint
-from PySide6.QtGui import QImage, QPixmap, QDesktopServices
+from PySide6.QtCore import QObject, QPoint, QPointList, Qt, QThread, Signal, Slot
+from PySide6.QtGui import QDesktopServices, QImage, QPixmap
 from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton
-
-from process_keyboard.keyboard_press import press_keyboard
-from process_keyboard.read_keyboard import ReadKeyboard
 
 import process_keyboard.keyboard_press
 from app import (
@@ -24,6 +22,8 @@ from app import (
     draw_info_text,
     draw_point_history,
 )
+from process_keyboard.keyboard_press import press_keyboard
+from process_keyboard.read_keyboard import ReadKeyboard
 from ui import Ui_MainWindow
 
 mouse = Controller()
@@ -34,11 +34,10 @@ class Thread(QThread):
     activate_key = Signal(str)
     mouse_move = Signal(str, QPointList)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent: QObject | None = None):
         QThread.__init__(self, parent)
         self.trained_file = None
         self.status = True
-        self.cap = None
         self.mp_hands = mp.solutions.hands
         self.hands = self.mp_hands.Hands(
             static_image_mode=True,
@@ -53,7 +52,6 @@ class Thread(QThread):
         self.point_history = QPointList()
 
         # Finger gesture history ################################################
-        self.finger_gesture_history = deque(maxlen=self.history_length)
         self.labels = [
             "two_fingers_near",
             "one",
@@ -74,20 +72,20 @@ class Thread(QThread):
         with open("model.pkl", "rb") as f:
             self.model = pickle.load(f)
 
-    def draw_image(self, image):
+    def draw_image(self, image: np.ndarray) -> None:
         h, w, ch = image.shape
         img = QImage(image.data, w, h, ch * w, QImage.Format_RGB888)
         scaled_img = img.scaled(640, 480, Qt.KeepAspectRatio)
         self.update_frame.emit(scaled_img)
 
-    def run(self):
-        self.cap = cv2.VideoCapture(1)
+    def run(self) -> None:
+        cap = cv2.VideoCapture(1)
         start_mouse_x, start_mouse_y = mouse.position
         print(start_mouse_x, start_mouse_y)
         self.point_history.append(QPoint(0, 0))
 
         while self.status:
-            ret, image = self.cap.read()
+            ret, image = cap.read()
             if not ret:
                 break
             image = cv2.flip(image, 1)
@@ -165,7 +163,7 @@ class MainWindow(QMainWindow):
     prev_label = None
     mouse_move = False
 
-    def __init__(self):
+    def __init__(self) -> None:
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -180,9 +178,13 @@ class MainWindow(QMainWindow):
         self.ui.stop_button.clicked.connect(self.kill_thread)
         self.ui.stop_button.setEnabled(False)
 
-        self.ui.one_combobox.currentTextChanged.connect(lambda text: self.combo_changed(text, combo_name="one_combobox"))
+        self.ui.one_combobox.currentTextChanged.connect(
+            lambda text: self.combo_changed(text, combo_name="one_combobox")
+        )
         self.ui.l_combobox.currentTextChanged.connect(lambda text: self.combo_changed(text, combo_name="l_combobox"))
-        self.ui.two_fingers_near_combobox.currentTextChanged.connect(lambda text: self.combo_changed(text, combo_name="two_fingers_near_combobox"))
+        self.ui.two_fingers_near_combobox.currentTextChanged.connect(
+            lambda text: self.combo_changed(text, combo_name="two_fingers_near_combobox")
+        )
 
         self.key_values: dict[str, list[keyboard.Key | keyboard.KeyCode]] = defaultdict(list)
         self.mouse_values: dict[str, str] = {}
@@ -208,7 +210,7 @@ class MainWindow(QMainWindow):
         self.read_config()
 
     @Slot()
-    def kill_thread(self):
+    def kill_thread(self) -> None:
         print("Finishing...")
         self.ui.stop_button.setEnabled(False)
         self.ui.start_button.setEnabled(True)
@@ -216,7 +218,7 @@ class MainWindow(QMainWindow):
         self.th.wait()  # Wait for the thread to finish
 
     @Slot()
-    def start(self):
+    def start(self) -> None:
         print("Starting...")
         self.ui.start_button.setEnabled(False)
         self.ui.stop_button.setEnabled(True)
@@ -228,7 +230,7 @@ class MainWindow(QMainWindow):
             button.pressed.connect(lambda b=button: button_hook(b, self))
 
     @Slot(QImage)
-    def set_image(self, image):
+    def set_image(self, image: QImage):
         self.ui.label_5.setPixmap(QPixmap.fromImage(image))
 
     def action_mouse(self, label: str, is_start: bool = True) -> None:
@@ -264,12 +266,12 @@ class MainWindow(QMainWindow):
             return
         self.prev_label = label
         try:
-            process_keyboard.keyboard_press.press_keyboard(self.key_values[label])
+            press_keyboard(self.key_values[label])
         except TypeError as e:
             print(e)
 
     @Slot(str, QPointList)
-    def process_mouse(self, label: str, point_history: QPointList):
+    def process_mouse(self, label: str, point_history: QPointList) -> None:
         print(label)
         # a = QtGui.QScreen.availableGeometry(self)
         # QtGui.QGuiApplication.primaryScreen().size()
@@ -282,7 +284,12 @@ class MainWindow(QMainWindow):
             if label in self.mouse_gestures:
                 self.action_mouse(label)
         action = self.mouse_values.get(label, "None")
-        if action != "None" and len(point_history) > 2 and (point_history[-1].x() + point_history[-1].y()) != 0 and (point_history[-2].x() + point_history[-2].y()) != 0:
+        if (
+            action != "None"
+            and len(point_history) > 2
+            and (point_history[-1].x() + point_history[-1].y()) != 0
+            and (point_history[-2].x() + point_history[-2].y()) != 0
+        ):
             diff_x = point_history[-1].x() - point_history[-2].x()
             diff_y = point_history[-1].y() - point_history[-2].y()
             print(diff_x, diff_y)
@@ -313,11 +320,11 @@ class MainWindow(QMainWindow):
             f.write(json_string)
         self.kill_thread()
 
-    def combo_changed(self, text: str, combo_name: str):
+    def combo_changed(self, text: str, combo_name: str) -> None:
         name = "_".join(combo_name.split("_")[:-1])
         self.mouse_values[name] = text
 
-    def read_config(self):
+    def read_config(self) -> None:
         if not os.path.exists(self.file_name):
             return
         try:

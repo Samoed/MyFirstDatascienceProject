@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 import argparse
 import copy
 import csv
@@ -8,8 +9,8 @@ from collections import Counter, deque
 import cv2
 import mediapipe as mp
 import numpy as np
-from PySide6.QtCore import QPointList, QPointFList
 from pynput.mouse import Button, Controller
+from PySide6.QtCore import QPointFList, QPointList
 
 mouse = Controller()
 

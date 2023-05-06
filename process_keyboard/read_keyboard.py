@@ -1,4 +1,5 @@
 from pynput import keyboard
+
 from process_keyboard.ru_eng_keycodes import ru_eng_keycodes
 
 
@@ -17,7 +18,7 @@ class ReadKeyboard:
         keyboard.Key.cmd_r,
     ]
 
-    def on_press(self, key: keyboard.Key) -> None:
+    def on_press(self, key: keyboard.Key | keyboard.KeyCode) -> None:
         self.pressed_key.append(key)
 
     def on_release(self, key: keyboard.Key) -> bool:
@@ -26,12 +27,12 @@ class ReadKeyboard:
 
     def read(self) -> list[keyboard.Key | keyboard.KeyCode]:
         for i in range(len(self.pressed_key)):
-            if type(self.pressed_key[i]) == keyboard.KeyCode:
-                self.pressed_key[i] = ru_eng_keycodes.get(self.pressed_key[i].char, self.pressed_key[i])
+            if type(self.pressed_key[i]) is keyboard.KeyCode:
+                self.pressed_key[i] = ru_eng_keycodes.get(self.pressed_key[i].char, self.pressed_key[i])  # type: ignore
         return self.pressed_key
 
     def __init__(self) -> None:
         self.pressed_key = []
-        with keyboard.Listener(on_press=self.on_press, on_release=self.on_release) as listener:
+        with keyboard.Listener(on_press=self.on_press) as listener:  # type: ignore[arg-type]
             listener.join()
         print(self.pressed_key)

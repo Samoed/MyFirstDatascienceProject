@@ -1,9 +1,9 @@
 # https://github.com/samuelcolvin/pydantic/blob/master/Makefile
 .DEFAULT_GOAL := all
-isort = isort app/ # tests/
-black = black app/ # tests/
-mypy = mypy app/
-flake8  = flake8 app/ # tests/
+isort = poetry run isort . # tests/
+black = poetry run black . # tests/
+mypy = poetry run mypy .
+flake8  = flake8 . # tests/
 pyupgrade = pyupgrade --py310-plus
 
 .PHONY: install-linting

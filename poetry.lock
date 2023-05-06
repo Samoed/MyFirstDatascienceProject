@@ -3060,6 +3060,18 @@ tests = ["autopep8", "flake8", "isort", "numpy", "pytest", "scipy (>=1.7.1)"]
 tutorials = ["matplotlib", "pandas", "tabulate"]
 
 [[package]]
+name = "types-pynput"
+version = "1.7.5.6"
+description = "Typing stubs for pynput"
+category = "dev"
+optional = false
+python-versions = "*"
+files = [
+    {file = "types-pynput-1.7.5.6.tar.gz", hash = "sha256:440b84ed20d6af3446ded90fc3758ae7735e26bb26140d1a925c85e1593280f0"},
+    {file = "types_pynput-1.7.5.6-py3-none-any.whl", hash = "sha256:7c47be0c8a20c6811c35345469efa72191e71a65d967b304f992d43df282df4e"},
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.5.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -3270,4 +3282,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.12"
-content-hash = "4ce34fd55eb7bcbb033125b67d61932ed9baacdb05affb92ca2bd1ef1236d13e"
+content-hash = "714c34a3ba6a3a0636e775ed04f8e1a700d0c6f75e5fff31bce300b6f3baeb91"
