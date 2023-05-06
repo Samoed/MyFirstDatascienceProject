@@ -101,6 +101,11 @@
        </property>
        <item>
         <property name="text">
+         <string>None</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>Move mouse</string>
         </property>
        </item>
@@ -138,13 +143,18 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QComboBox" name="two_fingers_combobox">
+      <widget class="QComboBox" name="two_fingers_near_combobox">
        <property name="cursor">
         <cursorShape>PointingHandCursor</cursorShape>
        </property>
        <property name="acceptDrops">
         <bool>false</bool>
        </property>
+       <item>
+        <property name="text">
+         <string>None</string>
+        </property>
+       </item>
        <item>
         <property name="text">
          <string>Mouse move</string>
@@ -221,17 +231,22 @@
        </property>
        <item>
         <property name="text">
+         <string>None</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>Mouse move</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Left click (LMB)</string>
+         <string>Left mouse (LMB)</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Right click</string>
+         <string>Right mouse</string>
         </property>
        </item>
       </widget>
