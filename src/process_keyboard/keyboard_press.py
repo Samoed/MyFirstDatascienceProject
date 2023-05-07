@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
-from PySide6.QtWidgets import QPushButton
+
 from pynput import keyboard
+from PySide6.QtWidgets import QPushButton
 
 from src.process_keyboard.read_keyboard import ReadKeyboard
 
@@ -35,4 +36,3 @@ def keys_to_str(keycodes: list[keyboard.Key | keyboard.KeyCode]) -> str:
             case keyboard.KeyCode:
                 result.append(key.char)
     return "+".join(result)
-

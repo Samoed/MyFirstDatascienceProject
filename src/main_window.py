@@ -2,24 +2,24 @@ import json
 import os
 from collections import defaultdict
 
+from pynput import keyboard
 from PySide6 import QtGui
-from PySide6.QtCore import Slot, QPointList
+from PySide6.QtCore import QPointList, Slot
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QMainWindow
-from pynput import keyboard
 
 from src.dialog import DialogWindow
-from src.process_keyboard.keyboard_press import button_hook, press_keyboard, keys_to_str
+from src.process_keyboard.keyboard_press import button_hook, keys_to_str, press_keyboard
 from src.process_mouse.move_mouse import action_mouse, move_mouse
-from src.ui.main_window_ui import Ui_MainWindow
 from src.thread import Thread
+from src.ui.main_window_ui import Ui_MainWindow
 
 
 class MainWindow(QMainWindow):
     prev_label = None
 
     def __init__(self, file_name: str) -> None:
-        super(MainWindow, self).__init__()
+        super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.file_name = file_name
@@ -167,7 +167,7 @@ class MainWindow(QMainWindow):
         if not os.path.exists(self.file_name):
             return
         try:
-            with open(self.file_name, "r", encoding="utf-8") as f:
+            with open(self.file_name, encoding="utf-8") as f:
                 keymap = json.loads(f.read())
         except json.decoder.JSONDecodeError:
             print("Error reading config")
@@ -182,7 +182,9 @@ class MainWindow(QMainWindow):
         self.update_gestures_text()
         print(self.key_values)
 
-    def read_keymap(self, keymap_json: dict[str, str]) -> tuple[dict[str, list[keyboard.KeyCode | keyboard.Key]], dict[str, str]]:
+    def read_keymap(
+        self, keymap_json: dict[str, str]
+    ) -> tuple[dict[str, list[keyboard.KeyCode | keyboard.Key]], dict[str, str]]:
         keys = keyboard.Key.__members__.keys()
         key_values: dict[str, list[keyboard.Key | keyboard.KeyCode]] = defaultdict(list)
         mouse_values = {}
@@ -207,7 +209,7 @@ class MainWindow(QMainWindow):
     def update_buttons_text(self, keymap: dict[str, list[keyboard.Key | keyboard.KeyCode]]):
         for button in self.gesture_buttons:
             button_gesture_name = "_".join(button.objectName().split("_")[:-1])
-            if button_gesture_name in keymap and keymap[button_gesture_name] != '':
+            if button_gesture_name in keymap and keymap[button_gesture_name] != "":
                 button.setText(keys_to_str(keymap[button_gesture_name]))
             else:
                 button.setText("Press button, then key")
@@ -215,7 +217,7 @@ class MainWindow(QMainWindow):
     def update_como_text(self, keymap: dict[str, str]):
         for combo in self.mouse_comboboxes:
             button_gesture_name = "_".join(combo.objectName().split("_")[:-1])
-            if button_gesture_name in keymap and keymap[button_gesture_name] != '':
+            if button_gesture_name in keymap and keymap[button_gesture_name] != "":
                 combo.setCurrentText(keymap[button_gesture_name])
             else:
                 combo.setCurrentText("None")

@@ -4,9 +4,9 @@ import pickle
 import cv2
 import mediapipe as mp
 import numpy as np
-from PySide6.QtCore import QThread, Signal, QPointList, QObject, Qt, QPoint
-from PySide6.QtGui import QImage, QGuiApplication
 from mediapipe.tasks.python.components.containers.landmark import NormalizedLandmark
+from PySide6.QtCore import QObject, QPoint, QPointList, Qt, QThread, Signal
+from PySide6.QtGui import QGuiApplication, QImage
 
 from src.drawing import calc_bounding_rect, calc_landmark_list, draw_info_text
 

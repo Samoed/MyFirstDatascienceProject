@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 ## Form generated from reading UI file 'profile_dialog.ui'
 ##
@@ -8,31 +6,25 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractButton, QApplication, QDialog, QDialogButtonBox,
-    QLabel, QSizePolicy, QTextEdit, QWidget)
+from PySide6.QtCore import QCoreApplication, QMetaObject, QRect, Qt
+from PySide6.QtWidgets import QDialogButtonBox, QLabel, QTextEdit
 
-class Ui_Dialog(object):
+
+class Ui_Dialog:
     def setupUi(self, Dialog):
         if not Dialog.objectName():
-            Dialog.setObjectName(u"Dialog")
+            Dialog.setObjectName("Dialog")
         Dialog.resize(400, 201)
         self.buttonBox = QDialogButtonBox(Dialog)
-        self.buttonBox.setObjectName(u"buttonBox")
+        self.buttonBox.setObjectName("buttonBox")
         self.buttonBox.setGeometry(QRect(40, 140, 341, 32))
         self.buttonBox.setOrientation(Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
         self.textEdit = QTextEdit(Dialog)
-        self.textEdit.setObjectName(u"textEdit")
+        self.textEdit.setObjectName("textEdit")
         self.textEdit.setGeometry(QRect(130, 40, 251, 41))
         self.label = QLabel(Dialog)
-        self.label.setObjectName(u"label")
+        self.label.setObjectName("label")
         self.label.setGeometry(QRect(10, 50, 111, 18))
 
         self.retranslateUi(Dialog)
@@ -40,10 +32,11 @@ class Ui_Dialog(object):
         self.buttonBox.rejected.connect(Dialog.reject)
 
         QMetaObject.connectSlotsByName(Dialog)
+
     # setupUi
 
     def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
-        self.label.setText(QCoreApplication.translate("Dialog", u"Profile name", None))
-    # retranslateUi
+        Dialog.setWindowTitle(QCoreApplication.translate("Dialog", "Dialog", None))
+        self.label.setText(QCoreApplication.translate("Dialog", "Profile name", None))
 
+    # retranslateUi

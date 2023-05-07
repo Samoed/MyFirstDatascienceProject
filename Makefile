@@ -26,8 +26,8 @@ format:
 	$(pyupgrade)
 	$(isort)
 	$(black)
-	$(mypy)
 	$(flake8)
+	$(mypy)
 
 .PHONY: export-dependencies
 export-dependencies:

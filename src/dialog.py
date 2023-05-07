@@ -4,9 +4,8 @@ from src.ui.dialog import Ui_Dialog
 
 
 class DialogWindow(QDialog):
-
     def __init__(self, parent=None):
-        super(DialogWindow, self).__init__(parent)
+        super().__init__(parent)
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
         self.ui.buttonBox.accepted.connect(self.accept)

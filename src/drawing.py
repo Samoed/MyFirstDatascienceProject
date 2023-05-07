@@ -1,8 +1,6 @@
-from typing import NamedTuple
-
 import cv2
-import numpy as np
 import mediapipe as mp
+import numpy as np
 from mediapipe.framework.formats.classification_pb2 import ClassificationList
 from mediapipe.framework.formats.landmark_pb2 import NormalizedLandmarkList
 
@@ -47,7 +45,9 @@ def draw_bounding_rect(image: np.ndarray, brect: list[int]) -> np.ndarray:
     return image
 
 
-def draw_info_text(image: np.ndarray, brect: tuple[int, int, int, int], handedness: ClassificationList, hand_sign_text: str) -> np.ndarray:
+def draw_info_text(
+    image: np.ndarray, brect: tuple[int, int, int, int], handedness: ClassificationList, hand_sign_text: str
+) -> np.ndarray:
     cv2.rectangle(image, (brect[0], brect[1]), (brect[2], brect[1] - 22), (0, 0, 0), -1)
 
     info_text = handedness.classification[0].label[0:]
