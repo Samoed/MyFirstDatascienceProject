@@ -24,15 +24,12 @@ def action_mouse(mouse_values: dict[str, str], label: str, is_start: bool = True
         mouse.release(button)
 
 
-def move_mouse(mouse_values: dict[str, str], point_history: QPointList, label: str):
+def move_mouse(mouse_values: dict[str, str], point_history: QPointList, label: str) -> None:
     action = mouse_values.get(label, "None")
-    if (
-            action != "None"
-            and len(point_history) > 2
-            and (point_history[-1].x() + point_history[-1].y()) != 0
-            and (point_history[-2].x() + point_history[-2].y()) != 0
-    ):
-        diff_x = point_history[-1].x() - point_history[-2].x()
-        diff_y = point_history[-1].y() - point_history[-2].y()
-        print(diff_x, diff_y)
-        mouse.move(diff_x, diff_y)
+    if action == "None" or len(point_history) <= 2 or (point_history[-1].x() + point_history[-1].y()) == 0 or (
+            point_history[-2].x() + point_history[-2].y()) == 0:
+        return
+    diff_x = point_history[-1].x() - point_history[-2].x()
+    diff_y = point_history[-1].y() - point_history[-2].y()
+    print(diff_x, diff_y)
+    mouse.move(diff_x, diff_y)

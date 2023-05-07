@@ -208,13 +208,13 @@ class Ui_MainWindow(object):
 
         self.gridLayout.addItem(self.verticalSpacer, 18, 0, 1, 2)
 
-        self.open_combobox_2 = QComboBox(self.gridLayoutWidget)
-        self.open_combobox_2.addItem("")
-        self.open_combobox_2.setObjectName(u"open_combobox_2")
-        self.open_combobox_2.setCursor(QCursor(Qt.PointingHandCursor))
-        self.open_combobox_2.setAcceptDrops(False)
+        self.profile_combobox = QComboBox(self.gridLayoutWidget)
+        self.profile_combobox.addItem("")
+        self.profile_combobox.setObjectName(u"profile_combobox")
+        self.profile_combobox.setCursor(QCursor(Qt.PointingHandCursor))
+        self.profile_combobox.setAcceptDrops(False)
 
-        self.gridLayout.addWidget(self.open_combobox_2, 0, 1, 1, 1)
+        self.gridLayout.addWidget(self.profile_combobox, 0, 1, 1, 1)
 
         self.add_profile_button = QPushButton(self.gridLayoutWidget)
         self.add_profile_button.setObjectName(u"add_profile_button")
@@ -275,7 +275,7 @@ class Ui_MainWindow(object):
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"C", None))
         self.dislike_button.setText(QCoreApplication.translate("MainWindow", u"Press button, then key", None))
         self.ok_button.setText(QCoreApplication.translate("MainWindow", u"Press button, then key", None))
-        self.open_combobox_2.setItemText(0, QCoreApplication.translate("MainWindow", u"default", None))
+        self.profile_combobox.setItemText(0, QCoreApplication.translate("MainWindow", u"default", None))
 
         self.add_profile_button.setText(QCoreApplication.translate("MainWindow", u"Add Profile", None))
     # retranslateUi

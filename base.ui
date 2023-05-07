@@ -348,7 +348,7 @@
       </spacer>
      </item>
      <item row="0" column="1">
-      <widget class="QComboBox" name="open_combobox_2">
+      <widget class="QComboBox" name="profile_combobox">
        <property name="cursor">
         <cursorShape>PointingHandCursor</cursorShape>
        </property>
