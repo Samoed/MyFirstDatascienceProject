@@ -8,6 +8,7 @@ from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QMainWindow
 from pynput import keyboard
 
+from src.dialog import DialogWindow
 from src.process_keyboard.keyboard_press import button_hook, press_keyboard, keys_to_str
 from src.process_mouse.move_mouse import action_mouse, move_mouse
 from src.ui.main_window_ui import Ui_MainWindow
@@ -39,8 +40,8 @@ class MainWindow(QMainWindow):
         )
 
         self.ui.profile_combobox.currentTextChanged.connect(self.change_profile)
+        self.ui.add_profile_button.clicked.connect(self.add_profile)
 
-        # TODO default profile
         self.key_values: dict[str, dict[str, list[keyboard.Key | keyboard.KeyCode]]] = {"default": defaultdict(list)}
         self.mouse_values: dict[str, dict[str, str]] = {"default": {}}
         self.mouse_gestures = [
@@ -75,8 +76,12 @@ class MainWindow(QMainWindow):
     def update_label(self):
         self.prev_label = None
 
-    def change_profile(self, text: str):
-        self.current_profile = text
+    def change_profile(self, profile_name: str):
+        self.current_profile = profile_name
+        if profile_name not in self.mouse_values:
+            self.mouse_values[profile_name] = {}
+            self.key_values[profile_name] = defaultdict(list)
+        self.update_gestures_text()
 
     def kill_thread(self) -> None:
         print("Finishing...")
@@ -111,6 +116,13 @@ class MainWindow(QMainWindow):
             press_keyboard(self.key_values[self.current_profile][label])
         except Exception as err:
             print(err)
+
+    def add_profile(self):
+        dlg = DialogWindow(self)
+        if dlg.exec():
+            text = dlg.ui.textEdit.toPlainText()
+            self.ui.profile_combobox.addItem(text)
+            self.ui.profile_combobox.setCurrentText(text)
 
     @Slot(str, QPointList)
     def process_mouse(self, label: str, point_history: QPointList) -> None:
@@ -189,17 +201,21 @@ class MainWindow(QMainWindow):
         return key_values, mouse_values
 
     def update_gestures_text(self):
-        self.update_buttons_text(self.key_values[self.current_profile])
-        self.update_como_text(self.mouse_values[self.current_profile])
+        self.update_buttons_text(self.key_values.get(self.current_profile, {}))
+        self.update_como_text(self.mouse_values.get(self.current_profile, {}))
 
     def update_buttons_text(self, keymap: dict[str, list[keyboard.Key | keyboard.KeyCode]]):
         for button in self.gesture_buttons:
             button_gesture_name = "_".join(button.objectName().split("_")[:-1])
             if button_gesture_name in keymap and keymap[button_gesture_name] != '':
                 button.setText(keys_to_str(keymap[button_gesture_name]))
+            else:
+                button.setText("Press button, then key")
 
     def update_como_text(self, keymap: dict[str, str]):
         for combo in self.mouse_comboboxes:
             button_gesture_name = "_".join(combo.objectName().split("_")[:-1])
             if button_gesture_name in keymap and keymap[button_gesture_name] != '':
                 combo.setCurrentText(keymap[button_gesture_name])
+            else:
+                combo.setCurrentText("None")
