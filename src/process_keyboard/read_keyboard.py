@@ -18,6 +18,12 @@ class ReadKeyboard:
         keyboard.Key.cmd_r,
     ]
 
+    def __init__(self) -> None:
+        self.pressed_key = []
+        with keyboard.Listener(on_press=self.on_press, on_release=self.on_release) as listener:  # type: ignore[arg-type]
+            listener.join()
+        print(self.pressed_key)
+
     def on_press(self, key: keyboard.Key | keyboard.KeyCode) -> None:
         self.pressed_key.append(key)
 
@@ -30,9 +36,3 @@ class ReadKeyboard:
             if type(self.pressed_key[i]) is keyboard.KeyCode:
                 self.pressed_key[i] = ru_eng_keycodes.get(self.pressed_key[i].char, self.pressed_key[i])  # type: ignore
         return self.pressed_key
-
-    def __init__(self) -> None:
-        self.pressed_key = []
-        with keyboard.Listener(on_press=self.on_press, on_release=self.on_release) as listener:  # type: ignore[arg-type]
-            listener.join()
-        print(self.pressed_key)

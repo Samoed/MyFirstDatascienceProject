@@ -10,13 +10,12 @@ from pynput import keyboard
 
 from src.process_keyboard.keyboard_press import button_hook, press_keyboard, keys_to_str
 from src.process_mouse.move_mouse import action_mouse, move_mouse
-from src.ui import Ui_MainWindow
+from src.ui.main_window_ui import Ui_MainWindow
 from src.thread import Thread
 
 
 class MainWindow(QMainWindow):
     prev_label = None
-    mouse_move = False
 
     def __init__(self, file_name: str) -> None:
         super(MainWindow, self).__init__()
@@ -103,7 +102,6 @@ class MainWindow(QMainWindow):
 
         print(label)
         print(self.key_values[self.current_profile][label])
-        self.mouse_move = False
 
         if self.prev_label == label or len(self.key_values[self.current_profile][label]) == 0:
             self.prev_label = label
