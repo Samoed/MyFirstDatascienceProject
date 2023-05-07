@@ -201,6 +201,11 @@ class MainWindow(QMainWindow):
             self.ui.like_button,
             self.ui.dislike_button,
         ]
+        self.mouse_comboboxes = [
+            self.ui.two_fingers_near_combobox,
+            self.ui.one_combobox,
+            self.ui.l_combobox,
+        ]
         self.process_buttons()
         self.read_config()
         self.start()
@@ -273,9 +278,9 @@ class MainWindow(QMainWindow):
                         keys_str.append(key.name)
                     case keyboard.KeyCode:
                         keys_str.append(key.char)
-                        # keys_vk.append(key.vk)  # TODO test vk?
             result_dict[gesture] = "+".join(keys_str)
-        # TODO dump all keymap
+        for gesture, mouse in self.mouse_values.items():
+            result_dict[gesture] = mouse
         json_string = json.dumps(result_dict)
         with open(self.file_name, "w", encoding="utf-8") as f:
             f.write(json_string)
@@ -297,16 +302,25 @@ class MainWindow(QMainWindow):
         keys = keyboard.Key.__members__.keys()
         for gesture, keymap_val in keymap.items():
             # TODO check if gesture is valid
+            if gesture in self.mouse_gestures:
+                self.mouse_values[gesture] = keymap_val
+                continue
             for key in keymap_val.split("+"):
+                if key == "":
+                    continue
                 if key in keys:
                     self.key_values[gesture].append(keyboard.Key[key])  # Key
                 else:
                     self.key_values[gesture].append(keyboard.KeyCode.from_char(key))
         for button in self.gesture_buttons:
-            if button.objectName() in keymap:
-                button.setText(keymap[button.objectName()])
-        # for combo in self.mouse_combo:
-        #     combo.setText(keymap.get(combo.objectName(), "Press button, then key"))
+            button_gesture_name = "_".join(button.objectName().split("_")[:-1])
+            if button_gesture_name in keymap and keymap[button_gesture_name] != '':
+                button.setText(keymap[button_gesture_name])
+
+        for combo in self.mouse_comboboxes:
+            button_gesture_name = "_".join(combo.objectName().split("_")[:-1])
+            if button_gesture_name in keymap and keymap[button_gesture_name] != '':
+                combo.setCurrentText(keymap[button_gesture_name])
         print(self.key_values)
 
 
