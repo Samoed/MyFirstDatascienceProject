@@ -33,6 +33,6 @@ class ReadKeyboard:
 
     def __init__(self) -> None:
         self.pressed_key = []
-        with keyboard.Listener(on_press=self.on_press) as listener:  # type: ignore[arg-type]
+        with keyboard.Listener(on_press=self.on_press, on_release=self.on_release) as listener:  # type: ignore[arg-type]
             listener.join()
         print(self.pressed_key)

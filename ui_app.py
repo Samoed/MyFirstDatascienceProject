@@ -3,19 +3,19 @@ import json
 import os
 import pickle
 import sys
-from collections import defaultdict, deque
+import time
+from collections import defaultdict
 
 import cv2
 import mediapipe as mp
 import numpy as np
-from pynput import keyboard
-from pynput.mouse import Button, Controller
 from PySide6 import QtGui
 from PySide6.QtCore import QObject, QPoint, QPointList, Qt, QThread, Signal, Slot
-from PySide6.QtGui import QDesktopServices, QImage, QPixmap
+from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton
+from pynput import keyboard
 
-import process_keyboard.keyboard_press
+
 from app import (
     calc_bounding_rect,
     calc_landmark_list,
@@ -24,9 +24,10 @@ from app import (
 )
 from process_keyboard.keyboard_press import press_keyboard
 from process_keyboard.read_keyboard import ReadKeyboard
+from process_mouse.move_mouse import action_mouse, move_mouse
 from ui import Ui_MainWindow
 
-mouse = Controller()
+
 
 
 class Thread(QThread):
@@ -80,8 +81,6 @@ class Thread(QThread):
 
     def run(self) -> None:
         cap = cv2.VideoCapture(1)
-        start_mouse_x, start_mouse_y = mouse.position
-        print(start_mouse_x, start_mouse_y)
         self.point_history.append(QPoint(0, 0))
 
         while self.status:
@@ -153,9 +152,9 @@ class Thread(QThread):
             if len(self.point_history) > self.history_length:
                 self.point_history.removeFirst(len(self.point_history) - self.history_length)
 
-        self.cap.release()
+        cap.release()
         cv2.destroyAllWindows()
-        sys.exit(-1)
+        # sys.exit(-1)
 
 
 class MainWindow(QMainWindow):
@@ -215,7 +214,9 @@ class MainWindow(QMainWindow):
         self.ui.stop_button.setEnabled(False)
         self.ui.start_button.setEnabled(True)
         self.th.status = False
+        time.sleep(1)
         self.th.wait()  # Wait for the thread to finish
+        a = 1
 
     @Slot()
     def start(self) -> None:
@@ -233,29 +234,10 @@ class MainWindow(QMainWindow):
     def set_image(self, image: QImage):
         self.ui.label_5.setPixmap(QPixmap.fromImage(image))
 
-    def action_mouse(self, label: str, is_start: bool = True) -> None:
-        action = self.mouse_values.get(label, None)
-        if action is None:
-            return
-        # TODO create enum for actions
-        match action:
-            case "Mouse move":
-                return
-            case "Left mouse (LMB)":
-                button = Button.left
-            case "Right mouse":
-                button = Button.right
-            case _:
-                return
-        if is_start:
-            mouse.press(button)
-        else:
-            mouse.release(button)
-
     @Slot(str)
     def process_key(self, label: str):
         if self.prev_label in self.mouse_gestures:
-            self.action_mouse(self.prev_label, is_start=False)
+            action_mouse(self.mouse_values, self.prev_label, is_start=False)
 
         print(label)
         print(self.key_values[label])
@@ -280,20 +262,10 @@ class MainWindow(QMainWindow):
         # width
         if self.prev_label != label:
             if self.prev_label in self.mouse_gestures:
-                self.action_mouse(self.prev_label, is_start=False)
+                action_mouse(self.mouse_values, self.prev_label, is_start=False)
             if label in self.mouse_gestures:
-                self.action_mouse(label)
-        action = self.mouse_values.get(label, "None")
-        if (
-            action != "None"
-            and len(point_history) > 2
-            and (point_history[-1].x() + point_history[-1].y()) != 0
-            and (point_history[-2].x() + point_history[-2].y()) != 0
-        ):
-            diff_x = point_history[-1].x() - point_history[-2].x()
-            diff_y = point_history[-1].y() - point_history[-2].y()
-            print(diff_x, diff_y)
-            mouse.move(diff_x, diff_y)
+                action_mouse(self.mouse_values, label)
+        move_mouse(self.mouse_values, point_history, label)
         # print(self.mouse_values[label])
         # if self.mouse_values[label] == [''] or self.prev_label == label:
         #     return
@@ -375,4 +347,9 @@ if __name__ == "__main__":
     window = MainWindow()
     window.show()
 
-    sys.exit(app.exec())
+    try:
+        sys.exit(app.exec())
+    except Exception as e:
+        print(e)
+        window.kill_thread()
+        sys.exit(0)
