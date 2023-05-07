@@ -2,10 +2,10 @@ from typing import TYPE_CHECKING
 from PySide6.QtWidgets import QPushButton
 from pynput import keyboard
 
-from app.process_keyboard.read_keyboard import ReadKeyboard
+from src.process_keyboard.read_keyboard import ReadKeyboard
 
 if TYPE_CHECKING:
-    from app.main_window import MainWindow
+    from src.main_window import MainWindow
 
 keyboard_controller = keyboard.Controller()
 
@@ -23,7 +23,7 @@ def button_hook(button: QPushButton, app_window: "MainWindow") -> None:
     new_text = keys_to_str(new_key_combo)
     button.setText(new_text)
     gesture = "_".join(button.objectName().split("_")[:-1])
-    app_window.key_values[gesture] = new_key_combo
+    app_window.key_values[app_window.current_profile][gesture] = new_key_combo
 
 
 def keys_to_str(keycodes: list[keyboard.Key | keyboard.KeyCode]) -> str:

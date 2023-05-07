@@ -1,6 +1,6 @@
 from pynput import keyboard
 
-from app.process_keyboard.ru_eng_keycodes import ru_eng_keycodes
+from src.process_keyboard.ru_eng_keycodes import ru_eng_keycodes
 
 
 class ReadKeyboard:

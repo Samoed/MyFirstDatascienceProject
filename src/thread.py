@@ -15,6 +15,7 @@ class Thread(QThread):
     update_frame = Signal(QImage)
     activate_key = Signal(str)
     mouse_move = Signal(str, QPointList)
+    update_label = Signal()
 
     def __init__(self, parent: QObject | None = None):
         QThread.__init__(self, parent)
@@ -81,6 +82,7 @@ class Thread(QThread):
             if results.multi_hand_landmarks is None:
                 self.point_history.append(QPoint(0, 0))
                 # debug_image = draw_point_history(debug_image, self.point_history)
+                self.update_label.emit()
                 self.draw_image(debug_image)
                 continue
 
@@ -116,6 +118,7 @@ class Thread(QThread):
             print(max_score, hand_sign_id, self.labels[hand_sign_id])
             if max_score < 0.6:
                 self.draw_image(debug_image)
+                self.update_label.emit()
                 continue
 
             if hand_sign_id in self.mouse_ids:
