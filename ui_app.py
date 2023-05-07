@@ -173,10 +173,6 @@ class MainWindow(QMainWindow):
         self.th.activate_key.connect(self.process_key)
         self.th.mouse_move.connect(self.process_mouse)
 
-        self.ui.start_button.clicked.connect(self.start)
-        self.ui.stop_button.clicked.connect(self.kill_thread)
-        self.ui.stop_button.setEnabled(False)
-
         self.ui.one_combobox.currentTextChanged.connect(
             lambda text: self.combo_changed(text, combo_name="one_combobox")
         )
@@ -207,23 +203,16 @@ class MainWindow(QMainWindow):
         ]
         self.process_buttons()
         self.read_config()
+        self.start()
 
-    @Slot()
     def kill_thread(self) -> None:
         print("Finishing...")
-        self.ui.stop_button.setEnabled(False)
-        self.ui.start_button.setEnabled(True)
         self.th.status = False
         time.sleep(1)
         self.th.wait()  # Wait for the thread to finish
-        a = 1
 
-    @Slot()
     def start(self) -> None:
         print("Starting...")
-        self.ui.start_button.setEnabled(False)
-        self.ui.stop_button.setEnabled(True)
-
         self.th.start()
 
     def process_buttons(self) -> None:
