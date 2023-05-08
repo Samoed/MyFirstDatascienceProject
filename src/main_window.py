@@ -8,7 +8,7 @@ from PySide6.QtCore import QPointList, Slot
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QMainWindow
 
-from src.dialog import DialogWindow
+from src.dialog_window import DialogWindow
 from src.process_keyboard.keyboard_press import button_hook, keys_to_str, press_keyboard
 from src.process_mouse.move_mouse import action_mouse, move_mouse
 from src.thread import Thread
@@ -178,6 +178,8 @@ class MainWindow(QMainWindow):
             self.key_values[profile] = keyboard_val
             self.mouse_values[profile] = mouse_val
 
+        self.ui.profile_combobox.removeItem(0)
+        self.ui.profile_combobox.addItems(list(keymap.keys()))
         self.ui.profile_combobox.setCurrentText(list(self.key_values.keys())[0])
         self.update_gestures_text()
         print(self.key_values)
