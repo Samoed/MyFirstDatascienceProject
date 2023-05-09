@@ -45,10 +45,11 @@ class GestureClassifier(nn.Module):
 def train(
     model, train_loader, test_loader, criterion, optimizer, num_epochs=10, batch_size=128, device=torch.device("cpu")
 ):
-    # Train the model
-    train_predicted = []
-    train_labels = []
     for epoch in tqdm(range(num_epochs), desc="Epochs"):
+        # Train the model
+        train_predicted = []
+        train_labels = []
+
         # Set the model to training mode
         model.train()
 
@@ -124,7 +125,6 @@ def train(
                 test_labels.extend(labels.tolist())
 
         # Compute the average test loss and accuracy for the epoch
-        test_loss /= len(train_loader)
         test_accuracy = accuracy_score(test_labels, test_predicted)
         test_f1 = f1_score(test_labels, test_predicted, average="macro")
 
@@ -132,7 +132,7 @@ def train(
         mlflow.log_metric("test_f1", test_f1, epoch)
 
         # Print the test loss and accuracy for the epoch
-        print(f"\nTest Epoch {epoch + 1}: Loss={test_loss:.4f}, Accuracy={test_accuracy:.4f}, F1={test_f1:.4f}\n")
+        print(f"\nTest Epoch {epoch + 1}: Accuracy={test_accuracy:.4f}, F1={test_f1:.4f}\n")
 
 
 def main():
