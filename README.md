@@ -60,3 +60,7 @@
 
 Accuracy на тестовой выборки для нейронной модели:
 ![torch_train_acc](img/pytorch_test_acc.png)
+
+## Демо работы
+1. [Набор жестов](https://youtu.be/abdMVR_DWkw)
+2. [Работа с Miro](https://youtu.be/w5kQKZJLQdM)
