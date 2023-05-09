@@ -18,8 +18,9 @@ class Thread(QThread):
     mouse_move = Signal(str, QPointList)
     update_label = Signal()
 
-    def __init__(self, parent: QObject | None = None):
+    def __init__(self, device: int, parent: QObject | None = None):
         QThread.__init__(self, parent)
+        self.device = device
         self.trained_file = None
         self.status = True
         self.mp_hands = mp.solutions.hands
@@ -64,7 +65,7 @@ class Thread(QThread):
         self.update_frame.emit(scaled_img)
 
     def run(self) -> None:
-        cap = cv2.VideoCapture(1)
+        cap = cv2.VideoCapture(self.device)
         self.point_history.append(QPoint(0, 0))
         fps_start_time = time.time()
         fps = 0

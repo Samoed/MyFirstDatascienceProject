@@ -19,7 +19,7 @@ from src.ui.main_window_ui import Ui_MainWindow
 class MainWindow(QMainWindow):
     prev_label = None
 
-    def __init__(self, file_name: str) -> None:
+    def __init__(self, file_name: str, device: int) -> None:
         super().__init__()
         self.logger = get_logger(self.__class__.__name__)
 
@@ -27,7 +27,7 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.file_name = file_name
 
-        self.th = Thread(self)
+        self.th = Thread(device, self)
         self.th.finished.connect(self.close)
         self.th.update_frame.connect(self.set_image)
         self.th.activate_key.connect(self.process_key)
