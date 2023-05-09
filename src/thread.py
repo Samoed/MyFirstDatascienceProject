@@ -1,5 +1,6 @@
 import copy
 import pickle
+import time
 
 import cv2
 import mediapipe as mp
@@ -65,6 +66,9 @@ class Thread(QThread):
     def run(self) -> None:
         cap = cv2.VideoCapture(1)
         self.point_history.append(QPoint(0, 0))
+        fps_start_time = time.time()
+        fps = 0
+        frame_count = 0
 
         while self.status:
             ret, image = cap.read()
@@ -77,6 +81,17 @@ class Thread(QThread):
             image.flags.writeable = False
             results = self.hands.process(image)
             image.flags.writeable = True
+
+            frame_count += 1
+
+            if (time.time() - fps_start_time) > 1:
+                fps = frame_count // (time.time() - fps_start_time)
+                fps_start_time = time.time()
+                frame_count = 0
+
+            cv2.putText(debug_image, f"FPS: {fps}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0),
+                        2,
+                        cv2.LINE_AA)
 
             if results.multi_hand_landmarks is None:
                 self.point_history.append(QPoint(0, 0))

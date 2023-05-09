@@ -22,14 +22,12 @@ class ReadKeyboard:
         self.pressed_key = []
         with keyboard.Listener(on_press=self.on_press, on_release=self.on_release) as listener:  # type: ignore[arg-type]
             listener.join()
-        print(self.pressed_key)
 
     def on_press(self, key: keyboard.Key | keyboard.KeyCode) -> None:
         self.pressed_key.append(key)
 
     def on_release(self, key: keyboard.Key) -> bool:
         return False
-        # return key in self.modifier_key:
 
     def read(self) -> list[keyboard.Key | keyboard.KeyCode]:
         for i in range(len(self.pressed_key)):
