@@ -4,13 +4,13 @@ import mlflow.pytorch
 import numpy as np
 import torch
 import torch.nn.functional as F
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, accuracy_score
 from sklearn.model_selection import train_test_split
 from torch import nn, optim
 from torch.utils.data import DataLoader, Dataset
 from tqdm.auto import tqdm
 
-BATCH_SIZE = 8
+BATCH_SIZE = 128
 
 
 class HandLandmarksDataset(Dataset):
@@ -26,11 +26,11 @@ class HandLandmarksDataset(Dataset):
 
 
 class GestureClassifier(nn.Module):
-    def __init__(self, num_classes: int = 14):
-        super(GestureClassifier, self).__init__()
+    def __init__(self, num_classes: int = 15):
+        super().__init__()
 
         # Fully connected layers
-        self.fc1 = nn.Linear(42, 128)  # 21 * 2
+        self.fc1 = nn.Linear(43, 128)  # 21 * 2 + 1
         self.fc2 = nn.Linear(128, 64)
         self.fc3 = nn.Linear(64, num_classes)  # 14 classes for the gestures
 
@@ -43,7 +43,7 @@ class GestureClassifier(nn.Module):
 
 
 def train(
-    model, train_loader, test_loader, criterion, optimizer, num_epochs=10, batch_size=32, device=torch.device("cpu")
+    model, train_loader, test_loader, criterion, optimizer, num_epochs=10, batch_size=128, device=torch.device("cpu")
 ):
     # Train the model
     train_predicted = []
@@ -83,7 +83,7 @@ def train(
 
         # Compute the average loss and accuracy for the epoch
         epoch_loss = running_loss / len(train_loader)
-        epoch_accuracy = running_accuracy / len(train_loader)
+        epoch_accuracy = accuracy_score(train_labels, train_predicted)
         epoch_f1 = f1_score(train_labels, train_predicted, average="macro")
 
         mlflow.log_metric("epoch_loss", epoch_loss, epoch)
@@ -91,7 +91,7 @@ def train(
         mlflow.log_metric("epoch_f1", epoch_f1, epoch)
 
         # Print the training loss and accuracy for the epoch
-        print(f"Train Epoch {epoch + 1}: Loss={epoch_loss:.4f}, Accuracy={epoch_accuracy:.4f}, F1={epoch_f1:.4f}")
+        print(f"\nTrain Epoch {epoch + 1}: Loss={epoch_loss:.4f}, Accuracy={epoch_accuracy:.4f}, F1={epoch_f1:.4f}\n")
 
         # Set the model to evaluation mode
         model.eval()
@@ -125,14 +125,14 @@ def train(
 
         # Compute the average test loss and accuracy for the epoch
         test_loss /= len(train_loader)
-        test_accuracy /= len(train_loader)
+        test_accuracy = accuracy_score(test_labels, test_predicted)
         test_f1 = f1_score(test_labels, test_predicted, average="macro")
 
         mlflow.log_metric("test_accuracy", test_accuracy, epoch)
         mlflow.log_metric("test_f1", test_f1, epoch)
 
         # Print the test loss and accuracy for the epoch
-        print(f"Test Epoch {epoch + 1}: Loss={test_loss:.4f}, Accuracy={test_accuracy:.4f}, F1={test_f1:.4f}")
+        print(f"\nTest Epoch {epoch + 1}: Loss={test_loss:.4f}, Accuracy={test_accuracy:.4f}, F1={test_f1:.4f}\n")
 
 
 def main():
@@ -140,9 +140,9 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=7,
+        default=10,
         metavar="N",
-        help="number of epochs to train (default: 14)",
+        help="number of epochs to train (default: 10)",
     )
     parser.add_argument(
         "--lr",
