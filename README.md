@@ -29,6 +29,10 @@
 | Градиентный бустинг     | 0.93 |
 | Нейронная сеть          | 0.94 |
 
-```python
-pyuic5  base.ui -o ui.py
-```
+- [X] LogReg
+- [X] SVC
+- [X] RandomForest
+- [X] GradientBoosting
+- [ ] CatBoost
+- [ ] XGBoost
+- [ ] PyTorch
