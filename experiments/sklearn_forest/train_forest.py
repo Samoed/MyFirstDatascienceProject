@@ -19,9 +19,9 @@ def objective(trial: Trial) -> float:
     X_train, X_test, y_train, y_test = load_data()
 
     params = {
-        'n_estimators': trial.suggest_int('n_estimators', 100, 5000),
-        'max_depth': trial.suggest_int('max_depth', 1, 10),
-        'max_features': trial.suggest_categorical('max_features', ['sqrt', 'log2']),
+        "n_estimators": trial.suggest_int("n_estimators", 100, 5000),
+        "max_depth": trial.suggest_int("max_depth", 1, 10),
+        "max_features": trial.suggest_categorical("max_features", ["sqrt", "log2"]),
         "criterion": trial.suggest_categorical("criterion", ["gini", "entropy"]),
     }
 
@@ -30,7 +30,7 @@ def objective(trial: Trial) -> float:
 
     y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred, average='macro')
+    f1 = f1_score(y_test, y_pred, average="macro")
 
     with mlflow.start_run(nested=True):
         mlflow.log_params(params)
@@ -56,7 +56,7 @@ def main():
         clf.fit(X_train, y_train)
 
         y_pred = clf.predict(X_test)
-        f1 = f1_score(y_test, y_pred, average='macro')
+        f1 = f1_score(y_test, y_pred, average="macro")
         mlflow.log_metric("f1", f1)
         mlflow.sklearn.log_model(clf, "model")
         accuracy = accuracy_score(y_test, y_pred)

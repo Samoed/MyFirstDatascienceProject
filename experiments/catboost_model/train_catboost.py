@@ -1,10 +1,10 @@
 import mlflow
 import numpy as np
+import optuna
 from catboost import CatBoostClassifier
+from optuna.trial import Trial
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.model_selection import train_test_split
-import optuna
-from optuna.trial import Trial
 
 
 def load_data(test_size: float = 0.2) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -19,8 +19,8 @@ def objective(trial: Trial) -> float:
     X_train, X_test, y_train, y_test = load_data()
 
     params = {
-        'n_estimators': trial.suggest_int('n_estimators', 100, 1000),
-        'max_depth': trial.suggest_int('max_depth', 1, 10),
+        "n_estimators": trial.suggest_int("n_estimators", 100, 1000),
+        "max_depth": trial.suggest_int("max_depth", 1, 10),
         "learning_rate": trial.suggest_float("learning_rate", 0.001, 1),
     }
     model = CatBoostClassifier(**params)
@@ -28,7 +28,7 @@ def objective(trial: Trial) -> float:
 
     y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred, average='macro')
+    f1 = f1_score(y_test, y_pred, average="macro")
 
     # Log metrics to MLflow
     with mlflow.start_run(nested=True):
@@ -53,7 +53,7 @@ def main():
         clf.fit(X_train, y_train)
 
         y_pred = clf.predict(X_test)
-        f1 = f1_score(y_test, y_pred, average='macro')
+        f1 = f1_score(y_test, y_pred, average="macro")
         mlflow.log_metric("f1", f1)
         mlflow.sklearn.log_model(clf, "model")
         accuracy = accuracy_score(y_test, y_pred)

@@ -2,7 +2,7 @@ import mlflow
 import numpy as np
 import optuna
 from optuna.trial import Trial
-from sklearn.metrics import f1_score, accuracy_score
+from sklearn.metrics import accuracy_score, f1_score
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 
@@ -22,14 +22,14 @@ def objective(trial: Trial) -> float:
         "C": trial.suggest_float("C", 1e-3, 1e3),
         "kernel": trial.suggest_categorical("kernel", ["linear", "poly", "rbf", "sigmoid"]),
         "gamma": trial.suggest_categorical("gamma", ["scale", "auto"]),
-        'degree': trial.suggest_int('degree', 1, 5),
+        "degree": trial.suggest_int("degree", 1, 5),
     }
 
     model = SVC(**params)
     model.fit(X_train, y_train)
 
     y_pred = model.predict(X_test)
-    f1 = f1_score(y_test, y_pred, average='macro')
+    f1 = f1_score(y_test, y_pred, average="macro")
     accuracy = accuracy_score(y_test, y_pred)
 
     # Log metrics to MLflow
@@ -57,7 +57,7 @@ def main():
         clf.fit(X_train, y_train)
 
         y_pred = clf.predict(X_test)
-        f1 = f1_score(y_test, y_pred, average='macro')
+        f1 = f1_score(y_test, y_pred, average="macro")
         mlflow.log_metric("f1", f1)
         mlflow.sklearn.log_model(clf, "model")
         accuracy = accuracy_score(y_test, y_pred)

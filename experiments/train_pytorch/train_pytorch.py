@@ -4,7 +4,7 @@ import mlflow.pytorch
 import numpy as np
 import torch
 import torch.nn.functional as F
-from sklearn.metrics import f1_score, accuracy_score
+from sklearn.metrics import accuracy_score, f1_score
 from sklearn.model_selection import train_test_split
 from torch import nn, optim
 from torch.utils.data import DataLoader, Dataset
