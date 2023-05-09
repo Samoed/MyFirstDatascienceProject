@@ -13,6 +13,7 @@ from src.process_keyboard.keyboard_press import button_hook, keys_to_str, press_
 from src.process_mouse.move_mouse import action_mouse, move_mouse
 from src.thread import Thread
 from src.ui.main_window_ui import Ui_MainWindow
+from src.logger import get_logger
 
 
 class MainWindow(QMainWindow):
@@ -20,6 +21,8 @@ class MainWindow(QMainWindow):
 
     def __init__(self, file_name: str) -> None:
         super().__init__()
+        self.logger = get_logger(self.__class__.__name__)
+
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.file_name = file_name
@@ -84,12 +87,12 @@ class MainWindow(QMainWindow):
         self.update_gestures_text()
 
     def kill_thread(self) -> None:
-        print("Finishing...")
+        self.logger.info("Finishing thread...")
         self.th.status = False
         self.th.wait()  # Wait for the thread to finish
 
     def start(self) -> None:
-        print("Starting...")
+        self.logger.info("Starting thread...")
         self.th.start()
 
     def process_buttons(self) -> None:
@@ -97,25 +100,26 @@ class MainWindow(QMainWindow):
             button.pressed.connect(lambda b=button: button_hook(b, self))
 
     @Slot(QImage)
-    def set_image(self, image: QImage):
+    def set_image(self, image: QImage) -> None:
         self.ui.label_5.setPixmap(QPixmap.fromImage(image))
 
     @Slot(str)
-    def process_key(self, label: str):
+    def process_key(self, label: str) -> None:
         if self.prev_label in self.mouse_gestures:
+            self.logger.info(f"Mouse gesture: {self.prev_label} release mouse")
             action_mouse(self.mouse_values[self.current_profile], self.prev_label, is_start=False)
 
-        print(label)
-        print(self.key_values[self.current_profile][label])
+        self.logger.info(f"Label: {label} key: {self.key_values[self.current_profile][label]}")
 
         if self.prev_label == label or len(self.key_values[self.current_profile][label]) == 0:
             self.prev_label = label
             return
         self.prev_label = label
         try:
+            self.logger.info(f"Pressing {keys_to_str(self.key_values[self.current_profile][label])}")
             press_keyboard(self.key_values[self.current_profile][label])
         except Exception as err:
-            print(err)
+            self.logger.error(err)
 
     def add_profile(self):
         dlg = DialogWindow(self)
@@ -123,15 +127,18 @@ class MainWindow(QMainWindow):
             text = dlg.ui.textEdit.toPlainText()
             self.ui.profile_combobox.addItem(text)
             self.ui.profile_combobox.setCurrentText(text)
+            self.logger.info(f"Adding profile {text}")
 
     @Slot(str, QPointList)
     def process_mouse(self, label: str, point_history: QPointList) -> None:
-        print(label)
+        self.logger.info(f"Label: {label}")
 
         if self.prev_label != label:
             if self.prev_label in self.mouse_gestures:
+                self.logger.info(f"Mouse gesture: {self.prev_label} release mouse")
                 action_mouse(self.mouse_values[self.current_profile], self.prev_label, is_start=False)
             if label in self.mouse_gestures:
+                self.logger.info(f"Mouse gesture: {label} start mouse")
                 action_mouse(self.mouse_values[self.current_profile], label)
         move_mouse(self.mouse_values[self.current_profile], point_history, label)
         self.prev_label = label
@@ -169,8 +176,8 @@ class MainWindow(QMainWindow):
         try:
             with open(self.file_name, encoding="utf-8") as f:
                 keymap = json.loads(f.read())
-        except json.decoder.JSONDecodeError:
-            print("Error reading config")
+        except json.decoder.JSONDecodeError as err:
+            self.logger.error(err)
             return
 
         for profile, keymap_val in keymap.items():
@@ -182,7 +189,9 @@ class MainWindow(QMainWindow):
         self.ui.profile_combobox.addItems(list(keymap.keys()))
         self.ui.profile_combobox.setCurrentText(list(self.key_values.keys())[0])
         self.update_gestures_text()
-        print(self.key_values)
+        self.logger.info("Config read")
+        self.logger.info(self.mouse_values)
+        self.logger.info(self.key_values)
 
     def read_keymap(
         self, keymap_json: dict[str, str]
@@ -191,7 +200,6 @@ class MainWindow(QMainWindow):
         key_values: dict[str, list[keyboard.Key | keyboard.KeyCode]] = defaultdict(list)
         mouse_values = {}
         for gesture, keymap_val in keymap_json.items():
-            # TODO check if gesture is valid
             if gesture in self.mouse_gestures:
                 mouse_values[gesture] = keymap_val
                 continue
@@ -204,11 +212,11 @@ class MainWindow(QMainWindow):
                     key_values[gesture].append(keyboard.KeyCode.from_char(key))
         return key_values, mouse_values
 
-    def update_gestures_text(self):
+    def update_gestures_text(self) -> None:
         self.update_buttons_text(self.key_values.get(self.current_profile, {}))
         self.update_como_text(self.mouse_values.get(self.current_profile, {}))
 
-    def update_buttons_text(self, keymap: dict[str, list[keyboard.Key | keyboard.KeyCode]]):
+    def update_buttons_text(self, keymap: dict[str, list[keyboard.Key | keyboard.KeyCode]]) -> None:
         for button in self.gesture_buttons:
             button_gesture_name = "_".join(button.objectName().split("_")[:-1])
             if button_gesture_name in keymap and keymap[button_gesture_name] != "":
@@ -216,7 +224,7 @@ class MainWindow(QMainWindow):
             else:
                 button.setText("Press button, then key")
 
-    def update_como_text(self, keymap: dict[str, str]):
+    def update_como_text(self, keymap: dict[str, str]) -> None:
         for combo in self.mouse_comboboxes:
             button_gesture_name = "_".join(combo.objectName().split("_")[:-1])
             if button_gesture_name in keymap and keymap[button_gesture_name] != "":

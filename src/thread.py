@@ -94,9 +94,7 @@ class Thread(QThread):
 
             hand_sign_id = int(self.model.predict(data)[0])
 
-            self.mp_drawings.draw_landmarks(
-                debug_image, hand_landmarks, self.mp_hands.HAND_CONNECTIONS
-            )
+            self.mp_drawings.draw_landmarks(debug_image, hand_landmarks, self.mp_hands.HAND_CONNECTIONS)
             debug_image = draw_info_text(
                 debug_image,
                 brect,
