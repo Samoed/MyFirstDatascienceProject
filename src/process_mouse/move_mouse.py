@@ -1,5 +1,6 @@
 from pynput.mouse import Button, Controller
 from PySide6.QtCore import QPointList
+
 from src.process_mouse.mouse_enum import MouseEnum
 
 mouse = Controller()

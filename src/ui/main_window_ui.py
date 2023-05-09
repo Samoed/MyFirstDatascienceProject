@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
     QStatusBar,
     QWidget,
 )
+
 from src.process_mouse.mouse_enum import MouseEnum
 
 
@@ -267,11 +268,15 @@ class Ui_MainWindow:
         self.l_combobox.setItemText(3, QCoreApplication.translate("MainWindow", MouseEnum.right_click, None))
 
         self.two_fingers_near_combobox.setItemText(0, QCoreApplication.translate("MainWindow", MouseEnum.none, None))
-        self.two_fingers_near_combobox.setItemText(1, QCoreApplication.translate("MainWindow", MouseEnum.move_mouse, None))
+        self.two_fingers_near_combobox.setItemText(
+            1, QCoreApplication.translate("MainWindow", MouseEnum.move_mouse, None)
+        )
         self.two_fingers_near_combobox.setItemText(
             2, QCoreApplication.translate("MainWindow", MouseEnum.left_click, None)
         )
-        self.two_fingers_near_combobox.setItemText(3, QCoreApplication.translate("MainWindow", MouseEnum.right_click, None))
+        self.two_fingers_near_combobox.setItemText(
+            3, QCoreApplication.translate("MainWindow", MouseEnum.right_click, None)
+        )
 
         self.label_14.setText(QCoreApplication.translate("MainWindow", "Hang", None))
         self.five_button.setText(QCoreApplication.translate("MainWindow", "Press button, then key", None))

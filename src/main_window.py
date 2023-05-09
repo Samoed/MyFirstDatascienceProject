@@ -9,11 +9,11 @@ from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QMainWindow
 
 from src.dialog_window import DialogWindow
+from src.logger import get_logger
 from src.process_keyboard.keyboard_press import button_hook, keys_to_str, press_keyboard
 from src.process_mouse.move_mouse import action_mouse, move_mouse
 from src.thread import Thread
 from src.ui.main_window_ui import Ui_MainWindow
-from src.logger import get_logger
 
 
 class MainWindow(QMainWindow):

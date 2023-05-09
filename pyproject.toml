@@ -23,7 +23,7 @@ tensorflow = "^2.11.0"
 
 [tool.poetry.group.lint.dependencies]
 flake8 = "^6.0.0"
-black = "^23.3.0"
+black = {extras = ["jupyter"], version = "^23.3.0"}
 isort = "^5.12.0"
 mypy = "^1.2.0"
 pyupgrade = "^3.3.2"
