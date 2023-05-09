@@ -156,7 +156,8 @@ class MainWindow(QMainWindow):
                             keys_str.append(key.name)
                         case keyboard.KeyCode:
                             keys_str.append(key.char)
-                result_dict[profile][gesture] = "+".join(keys_str)
+                if len(keys_str) != 0:
+                    result_dict[profile][gesture] = "+".join(keys_str)
 
         for profile, mouse_keymap in self.mouse_values.items():
             for gesture, mouse in mouse_keymap.items():
@@ -179,15 +180,18 @@ class MainWindow(QMainWindow):
         except json.decoder.JSONDecodeError as err:
             self.logger.error(err)
             return
-
+        profiles = []
         for profile, keymap_val in keymap.items():
+            if profile == '':
+                continue
+            profiles.append(profile)
             keyboard_val, mouse_val = self.read_keymap(keymap_val)
             self.key_values[profile] = keyboard_val
             self.mouse_values[profile] = mouse_val
 
         self.ui.profile_combobox.removeItem(0)
-        self.ui.profile_combobox.addItems(list(keymap.keys()))
-        self.ui.profile_combobox.setCurrentText(list(self.key_values.keys())[0])
+        self.ui.profile_combobox.addItems(profiles)
+        self.ui.profile_combobox.setCurrentText(profiles[0])
         self.update_gestures_text()
         self.logger.info("Config read")
         self.logger.info(self.mouse_values)
