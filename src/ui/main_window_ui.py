@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
     QStatusBar,
     QWidget,
 )
+from src.process_mouse.mouse_enum import MouseEnum
 
 
 class Ui_MainWindow:
@@ -250,27 +251,27 @@ class Ui_MainWindow:
         self.label_3.setText(QCoreApplication.translate("MainWindow", "One", None))
         self.c_button.setText(QCoreApplication.translate("MainWindow", "Press button, then key", None))
         self.heavy_button.setText(QCoreApplication.translate("MainWindow", "Press button, then key", None))
-        self.one_combobox.setItemText(0, QCoreApplication.translate("MainWindow", "None", None))
-        self.one_combobox.setItemText(1, QCoreApplication.translate("MainWindow", "Mouse move", None))
-        self.one_combobox.setItemText(2, QCoreApplication.translate("MainWindow", "Left mouse (LMB)", None))
-        self.one_combobox.setItemText(3, QCoreApplication.translate("MainWindow", "Right mouse", None))
+        self.one_combobox.setItemText(0, QCoreApplication.translate("MainWindow", MouseEnum.none, None))
+        self.one_combobox.setItemText(1, QCoreApplication.translate("MainWindow", MouseEnum.move_mouse, None))
+        self.one_combobox.setItemText(2, QCoreApplication.translate("MainWindow", MouseEnum.left_click, None))
+        self.one_combobox.setItemText(3, QCoreApplication.translate("MainWindow", MouseEnum.right_click, None))
 
         self.label_13.setText(QCoreApplication.translate("MainWindow", "Palm", None))
         self.label_11.setText(QCoreApplication.translate("MainWindow", "L", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", "Two", None))
         self.two_button.setText(QCoreApplication.translate("MainWindow", "Press button, then key", None))
         self.label.setText(QCoreApplication.translate("MainWindow", "Three", None))
-        self.l_combobox.setItemText(0, QCoreApplication.translate("MainWindow", "None", None))
-        self.l_combobox.setItemText(1, QCoreApplication.translate("MainWindow", "Move mouse", None))
-        self.l_combobox.setItemText(2, QCoreApplication.translate("MainWindow", "Left mouse (LMB)", None))
-        self.l_combobox.setItemText(3, QCoreApplication.translate("MainWindow", "Right mouse", None))
+        self.l_combobox.setItemText(0, QCoreApplication.translate("MainWindow", MouseEnum.none, None))
+        self.l_combobox.setItemText(1, QCoreApplication.translate("MainWindow", MouseEnum.move_mouse, None))
+        self.l_combobox.setItemText(2, QCoreApplication.translate("MainWindow", MouseEnum.left_click, None))
+        self.l_combobox.setItemText(3, QCoreApplication.translate("MainWindow", MouseEnum.right_click, None))
 
-        self.two_fingers_near_combobox.setItemText(0, QCoreApplication.translate("MainWindow", "None", None))
-        self.two_fingers_near_combobox.setItemText(1, QCoreApplication.translate("MainWindow", "Mouse move", None))
+        self.two_fingers_near_combobox.setItemText(0, QCoreApplication.translate("MainWindow", MouseEnum.none, None))
+        self.two_fingers_near_combobox.setItemText(1, QCoreApplication.translate("MainWindow", MouseEnum.move_mouse, None))
         self.two_fingers_near_combobox.setItemText(
-            2, QCoreApplication.translate("MainWindow", "Left mouse (LMB)", None)
+            2, QCoreApplication.translate("MainWindow", MouseEnum.left_click, None)
         )
-        self.two_fingers_near_combobox.setItemText(3, QCoreApplication.translate("MainWindow", "Right mouse", None))
+        self.two_fingers_near_combobox.setItemText(3, QCoreApplication.translate("MainWindow", MouseEnum.right_click, None))
 
         self.label_14.setText(QCoreApplication.translate("MainWindow", "Hang", None))
         self.five_button.setText(QCoreApplication.translate("MainWindow", "Press button, then key", None))

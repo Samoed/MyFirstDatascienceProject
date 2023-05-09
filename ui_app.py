@@ -14,4 +14,3 @@ if __name__ == "__main__":
         sys.exit(app.exec())
     except Exception as e:
         print(e)
-        sys.exit(0)
