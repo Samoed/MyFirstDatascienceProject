@@ -89,9 +89,7 @@ class Thread(QThread):
                 fps_start_time = time.time()
                 frame_count = 0
 
-            cv2.putText(debug_image, f"FPS: {fps}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0),
-                        2,
-                        cv2.LINE_AA)
+            cv2.putText(debug_image, f"FPS: {fps}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2, cv2.LINE_AA)
 
             if results.multi_hand_landmarks is None:
                 self.point_history.append(QPoint(0, 0))
@@ -105,7 +103,7 @@ class Thread(QThread):
             brect = calc_bounding_rect(debug_image, hand_landmarks)
             landmark_list = calc_landmark_list(hand_landmarks)
             is_right = handedness.classification[0].label == "Right"
-            data = np.append(landmark_list, is_right).reshape(1, -1)
+            data = np.append(landmark_list, int(is_right)).reshape(1, -1)
 
             hand_sign_id = int(self.model.predict(data)[0])
 
