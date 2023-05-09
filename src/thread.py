@@ -30,11 +30,9 @@ class Thread(QThread):
         )
         self.mp_drawings = mp.solutions.drawing_utils
 
-        # Coordinate history #################################################################
         self.history_length = 16
         self.point_history = QPointList()
 
-        # Finger gesture history ################################################
         self.labels = [
             "two_fingers_near",
             "one",
@@ -50,6 +48,7 @@ class Thread(QThread):
             "l",
             "like",
             "dislike",
+            "fist",
         ]
         self.mouse_ids = [0, 1, 11]
         with open("model.pkl", "rb") as f:
@@ -81,33 +80,22 @@ class Thread(QThread):
 
             if results.multi_hand_landmarks is None:
                 self.point_history.append(QPoint(0, 0))
-                # debug_image = draw_point_history(debug_image, self.point_history)
                 self.update_label.emit()
                 self.draw_image(debug_image)
                 continue
 
             hand_landmarks = results.multi_hand_landmarks[0]
             handedness = results.multi_handedness[0]
-            # if handedness.classification[0].label == "Right":
-            #     test_image = copy.deepcopy(image)
-            #     test_image = cv2.flip(test_image, 1)
-            #     mirrored_result = self.hands.process(test_image)
-            #     hand_landmarks = mirrored_result.multi_hand_landmarks[0]
 
-            # Bounding box calculation
             brect = calc_bounding_rect(debug_image, hand_landmarks)
-            # Landmark calculation
-            landmark_list = calc_landmark_list(hand_landmarks).reshape(1, -1)
+            landmark_list = calc_landmark_list(hand_landmarks)
+            is_right = handedness.classification[0].label == "Right"
+            data = np.append(landmark_list, is_right).reshape(1, -1)
 
-            # Hand sign classification
-            hand_sign_id = int(self.model.predict(landmark_list)[0])
-            max_score = max(self.model.predict_proba(landmark_list)[0])
-            print(hand_sign_id)
+            hand_sign_id = int(self.model.predict(data)[0])
 
-            # Drawing part
-            # debug_image = draw_bounding_rect(use_brect, debug_image, brect)
             self.mp_drawings.draw_landmarks(
-                debug_image, results.multi_hand_landmarks[0], self.mp_hands.HAND_CONNECTIONS
+                debug_image, hand_landmarks, self.mp_hands.HAND_CONNECTIONS
             )
             debug_image = draw_info_text(
                 debug_image,
@@ -115,11 +103,6 @@ class Thread(QThread):
                 handedness,
                 self.labels[hand_sign_id],
             )
-            print(max_score, hand_sign_id, self.labels[hand_sign_id])
-            if max_score < 0.6:
-                self.draw_image(debug_image)
-                self.update_label.emit()
-                continue
 
             if hand_sign_id in self.mouse_ids:
                 # 8 is index of index point finger
