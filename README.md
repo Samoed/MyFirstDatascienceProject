@@ -57,7 +57,7 @@
 
 Матрица ошибок для SVM:
 <div>
-    <img src="https://raw.githubusercontent.com/Samoed/MyFirstDatascienceProject/main/img/training_confusion_matrix.png" align="right" style="object-fit: cover;">
+    <img src="https://raw.githubusercontent.com/Samoed/MyFirstDatascienceProject/main/img/training_confusion_matrix.png" align="right" style="width:70%; object-fit: cover;">
     <ol start="0">
         <li>two_fingers_near</li>
         <li>one ☝️</li>
@@ -76,7 +76,7 @@
         <li>fist ✊</li>
     </ol>
 </div>
-<br>
+<br><br>
 
 Accuracy на тестовой выборки для нейронной модели:
 ![torch_train_acc](img/pytorch_test_acc.png)
