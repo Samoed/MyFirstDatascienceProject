@@ -56,7 +56,27 @@
 ![mlflow_table](img/mlflow_best.png)
 
 Матрица ошибок для SVM:
-![svc_confusion](img/training_confusion_matrix.png)
+<div>
+    <img src="https://raw.githubusercontent.com/Samoed/MyFirstDatascienceProject/main/img/training_confusion_matrix.png" align="right" style="width: 700px; height: 400px; object-fit: cover;">
+    <ol start="0">
+        <li>two_fingers_near</li>
+        <li>one ☝️</li>
+        <li>two ✌️</li>
+        <li>three</li>
+        <li>four</li>
+        <li>five</li>
+        <li>ok 👌</li>
+        <li>C</li>
+        <li>heavy 🤟</li>
+        <li>hang 🤙</li>
+        <li>palm ✋</li>
+        <li>L</li>
+        <li>like 👍</li>
+        <li>dislike 👎</li>
+        <li>fist ✊</li>
+    </ol>
+</div>
+<br>
 
 Accuracy на тестовой выборки для нейронной модели:
 ![torch_train_acc](img/pytorch_test_acc.png)
