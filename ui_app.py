@@ -4,6 +4,7 @@ from PySide6.QtWidgets import QApplication
 
 from src.args_parser import get_device
 from src.main_window import MainWindow
+import sklearn
 
 if __name__ == "__main__":
     device = get_device()
